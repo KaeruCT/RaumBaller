@@ -1,0 +1,178 @@
+// Fields are separated by one or more tabs.
+// Lines without tabs (such as these) are ignored, and can be used as comments.
+// Some fields (names, filenames) may contain spaces.
+
+// define a sound
+laser	sound/laser.wav
+explode	sound/explosion.wav
+
+// define image to display as background
+starbg	img/starbg1.png					0	0	128	128	0	0
+starbg2	img/starbg2.png					0	0	128	128	0	0
+pipebg	img/pipe.png					0	0	128	128	0	0
+
+bg1		-	0	starbg	0	-
+bg2		-	0	starbg2	0	-
+pipe	-	0	pipebg	0	-
+
+font_white		img/fontwhite.png		0	0	8	8	0	0
+font_yellow		img/fontyellow.png		0	0	8	8	0	0
+font_blue		img/fontblue.png		0	0	8	8	0	0
+expred_sheet	img/explosionred.png	0	0	16	16	0	0
+expgreen_sheet	img/explosiongreen.png	0	0	16	16	0	0
+expblue_sheet	img/explosionblue.png	0	0	16	16	0	0
+
+expred_1	-	0	expred_sheet	0	-
+expred_2	-	0	expred_sheet	1	-
+expred_3	-	0	expred_sheet	2	-
+expred_4	-	0	expred_sheet	3	-
+expred_5	-	0	expred_sheet	4	-
+expred_6	-	0	expred_sheet	5	-
+expgreen_1	-	0	expgreen_sheet	0	-
+expgreen_2	-	0	expgreen_sheet	1	-
+expgreen_3	-	0	expgreen_sheet	2	-
+expgreen_4	-	0	expgreen_sheet	3	-
+expgreen_5	-	0	expgreen_sheet	4	-
+expgreen_6	-	0	expgreen_sheet	5	-
+expblue_1	-	0	expblue_sheet	0	-
+expblue_2	-	0	expblue_sheet	1	-
+expblue_3	-	0	expblue_sheet	2	-
+expblue_4	-	0	expblue_sheet	3	-
+expblue_5	-	0	expblue_sheet	4	-
+expblue_6	-	0	expblue_sheet	5	-
+
+explosion_red	expred_1;expred_2;expred_3;expred_4;expred_5;expred_6				0.5		false
+explosion_green	expgreen_1;expgreen_2;expgreen_3;expgreen_4;expgreen_5;expgreen_6	0.5		false
+explosion_blue	expblue_1;expblue_2;expblue_3;expblue_4;expblue_5;expblue_6			0.5		false
+
+player_sheet		img/player.png	0	0	16	16	0	0
+player1_1		-	0	player_sheet	0	-
+player1_2		-	0	player_sheet	1	-
+player1_3		-	0	player_sheet	2	-
+player1_4		-	0	player_sheet	3	-
+player2_1		-	0	player_sheet	4	-
+player2_2		-	0	player_sheet	5	-
+player2_3		-	0	player_sheet	6	-
+player2_4		-	0	player_sheet	7	-
+player3_1		-	0	player_sheet	8	-
+player3_2		-	0	player_sheet	9	-
+player3_3		-	0	player_sheet	10	-
+player3_4		-	0	player_sheet	11	-
+
+enemy_sheet		img/enemy.png	0	0	16	16	0	0
+enemy1_1			-	0	enemy_sheet		0	-
+enemy1_2			-	0	enemy_sheet		1	-
+enemy1_3			-	0	enemy_sheet		2	-
+enemy1_4			-	0	enemy_sheet		3	-
+enemy2_1			-	0	enemy_sheet		4	-
+enemy2_2			-	0	enemy_sheet		5	-
+enemy2_3			-	0	enemy_sheet		6	-
+enemy2_4			-	0	enemy_sheet		7	-
+
+sb_sheet	img/spaceball.png	0	0	16	16	0	0
+sb					-	0	sb_sheet		0	-
+sb_flash1			-	0	sb_sheet		1	-
+sb_flash2			-	0	sb_sheet		2	-
+sb_flash3			-	0	sb_sheet		3	-
+as					-	0	sb_sheet		4	-
+as_flash1			-	0	sb_sheet		5	-
+as_flash2			-	0	sb_sheet		6	-
+as_flash3			-	0	sb_sheet		7	-
+
+eye_sheet	img/eye.png			0	0	16	16	0	0
+se		-	0	eye_sheet		0	-
+se_flash1	-	0	eye_sheet		1	-
+se_flash2	-	0	eye_sheet		2	-
+se_flash3	-	0	eye_sheet		3	-
+
+cibum_sheet		img/cibum.png	0	0	32	30	0	0
+cibum_1				-	0	cibum_sheet		0	-
+cibum_2				-	0	cibum_sheet		1	-
+cibum_flash1		-	0	cibum_sheet		2	-
+cibum_flash2		-	0	cibum_sheet		3	-
+cibum_flash3		-	0	cibum_sheet		4	-
+cibum_flash4		-	0	cibum_sheet		5	-
+
+sparkdefender		enemy1_1						0		false
+firestriker			enemy2_1						0		false
+sparkdefender_flash	enemy1_2;enemy1_3;enemy1_4		5		true
+firestriker_flash	enemy2_2;enemy2_3;enemy2_4		5		true
+spaceball			sb								0		false
+spaceball_flash		sb_flash1;sb_flash2;sb_flash3	5		true
+sparkeye			se								0		false
+sparkeye_flash		se_flash1;se_flash2;se_flash3	5		true
+asterisk			as								0		false
+asterisk_flash		as_flash1;as_flash2;as_flash3	5		true
+
+player1				player1_1						0		false
+player2				player2_1						0		false
+player3				player3_1						0		false
+player1_flash		player1_2;player1_3;player1_4	5		true
+player2_flash		player2_2;player2_3;player2_4	5		true
+player3_flash		player3_2;player3_3;player3_4	5		true
+
+cibumdestroyer			cibum_1;cibum_2					0.3		true
+cibumdestroyer_flash	cibum_flash1;cibum_flash2;cibum_flash3;cibum_flash4	5		true
+
+star_sheet			img/bgstars.png	0	0	8	8	0	0
+bgstar_1			-	0	star_sheet	0	-
+bgstar_2			-	0	star_sheet	1	-
+bgstar_3			-	0	star_sheet	2	-
+bgstar_4			-	0	star_sheet	3	-
+bgstar_5			-	0	star_sheet	4	-
+bgstar_6			-	0	star_sheet	5	-
+bgstar_7			-	0	star_sheet	6	-
+bgstar_8			-	0	star_sheet	7	-
+
+bullet_sheet		img/bullet.png	0	0	8	8	0	0
+bul1_1			-	0	bullet_sheet	0	-
+bul1_2			-	0	bullet_sheet	1	-
+bul1_3			-	0	bullet_sheet	2	-
+bul1_4			-	0	bullet_sheet	3	-
+bul2_1			-	0	bullet_sheet	4	-
+bul2_2			-	0	bullet_sheet	5	-
+bul2_3			-	0	bullet_sheet	6	-
+bul2_4			-	0	bullet_sheet	7	-
+bul3_1			-	0	bullet_sheet	8	-
+bul3_2			-	0	bullet_sheet	9	-
+bul3_3			-	0	bullet_sheet	10	-
+bul3_4			-	0	bullet_sheet	11	-
+bul4_1			-	0	bullet_sheet	12	-
+bul4_2			-	0	bullet_sheet	13	-
+bul4_3			-	0	bullet_sheet	14	-
+bul4_4			-	0	bullet_sheet	15	-
+bul5_1			-	0	bullet_sheet	16	-
+bul5_2			-	0	bullet_sheet	17	-
+bul5_3			-	0	bullet_sheet	18	-
+bul5_4			-	0	bullet_sheet	19	-
+bul1_1u			-	0	bullet_sheet	0	u
+bul1_2u			-	0	bullet_sheet	1	u
+bul1_3u			-	0	bullet_sheet	2	u
+bul1_4u			-	0	bullet_sheet	3	u
+bul2_1u			-	0	bullet_sheet	4	u
+bul2_2u			-	0	bullet_sheet	5	u
+bul2_3u			-	0	bullet_sheet	6	u
+bul2_4u			-	0	bullet_sheet	7	u
+bul3_1u			-	0	bullet_sheet	8	u
+bul3_2u			-	0	bullet_sheet	9	u
+bul3_3u			-	0	bullet_sheet	10	u
+bul3_4u			-	0	bullet_sheet	11	u
+bul4_1u			-	0	bullet_sheet	12	u
+bul4_2u			-	0	bullet_sheet	13	u
+bul4_3u			-	0	bullet_sheet	14	u
+bul4_4u			-	0	bullet_sheet	15	u
+bul5_1u			-	0	bullet_sheet	16	u
+bul5_2u			-	0	bullet_sheet	17	u
+bul5_3u			-	0	bullet_sheet	18	u
+bul5_4u			-	0	bullet_sheet	19	u
+
+bul1		bul1_1;bul1_2;bul1_3;bul1_4				0.5		true
+bul2		bul2_1;bul2_2;bul2_3;bul2_4				0.5		true
+bul3		bul3_1;bul3_2;bul3_3;bul3_4				0.5		true
+bul4		bul4_1;bul4_2;bul4_3;bul4_4				0.5		true
+bul5		bul5_1;bul5_2;bul5_3;bul5_4				0.5		true
+bul1u		bul1_1u;bul1_2u;bul1_3u;bul1_4u			0.5		true
+bul2u		bul2_1u;bul2_2u;bul2_3u;bul2_4u			0.5		true
+bul3u		bul3_1u;bul3_2u;bul3_3u;bul3_4u			0.5		true
+bul4u		bul4_1u;bul4_2u;bul4_3u;bul4_4u			0.5		true
+bul5u		bul5_1u;bul5_2u;bul5_3u;bul5_4u			0.5		true
