@@ -1,31 +1,21 @@
 package jgame.platform;
-import android.app.*;
+
 import android.os.Bundle;
-import android.content.res.AssetManager;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
 
-import android.hardware.*;
-import android.view.*;
-import android.graphics.*;
-import android.graphics.drawable.Drawable;
-
-import android.content.Intent;
-import android.content.DialogInterface;
-import android.net.Uri;
-
-import java.util.*;
-
-import android.content.SharedPreferences;
-import android.preference.*;
+import java.util.Enumeration;
 
 
 public class JGPreferences extends PreferenceActivity {
 
-	JGEngine eng;
+    JGEngine eng;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		eng = JGEngine.current_engine;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        eng = JGEngine.current_engine;
 
         setPreferenceScreen(createPreferenceHierarchy());
     }
@@ -34,22 +24,22 @@ public class JGPreferences extends PreferenceActivity {
         // Root
         PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
         PreferenceCategory currentPrefCat = new PreferenceCategory(this);
-		currentPrefCat.setTitle("Preferences");
-		boolean catAdded=false;
-		for (Enumeration e=eng.settings_array.elements();e.hasMoreElements();) {
-			Object el = e.nextElement();
-			if (el instanceof SettingsTitle) {
-		        currentPrefCat = new PreferenceCategory(this);
-				currentPrefCat.setTitle(((SettingsTitle)el).titledesc);
-				catAdded=false;
-			} else {
-				if (!catAdded) {
-        			root.addPreference(currentPrefCat);
-					catAdded=true;
-				}
-				((Setting)el).addMenuItem(eng,this,currentPrefCat);
-			}
-		}
+        currentPrefCat.setTitle("Preferences");
+        boolean catAdded = false;
+        for (Enumeration e = eng.settings_array.elements(); e.hasMoreElements(); ) {
+            Object el = e.nextElement();
+            if (el instanceof SettingsTitle) {
+                currentPrefCat = new PreferenceCategory(this);
+                currentPrefCat.setTitle(((SettingsTitle) el).titledesc);
+                catAdded = false;
+            } else {
+                if (!catAdded) {
+                    root.addPreference(currentPrefCat);
+                    catAdded = true;
+                }
+                ((Setting) el).addMenuItem(eng, this, currentPrefCat);
+            }
+        }
 
 
 //        // Launch preferences
@@ -117,20 +107,20 @@ public class JGPreferences extends PreferenceActivity {
     }
 
 
-	@Override
-	protected void onResume() {
-		// Ideally a game should implement onResume() and onPause()
-		// to take appropriate action when the activity looses focus
-		super.onResume();
+    @Override
+    protected void onResume() {
+        // Ideally a game should implement onResume() and onPause()
+        // to take appropriate action when the activity looses focus
+        super.onResume();
 
-	}
+    }
 
-	@Override
-	protected void onPause() {
-		// Ideally a game should implement onResume() and onPause()
-		// to take appropriate action when the activity looses focus
-		super.onPause();
-	}
+    @Override
+    protected void onPause() {
+        // Ideally a game should implement onResume() and onPause()
+        // to take appropriate action when the activity looses focus
+        super.onPause();
+    }
 
 }
 
