@@ -4,8 +4,8 @@ import com.kaeruct.raumballer.AndroidGame;
 
 public abstract class Cannon {
 
-    public int waitTime;
     public static AndroidGame game;
+    public int waitTime;
     public int lastShoot;
 
     public Cannon() {
@@ -14,7 +14,8 @@ public abstract class Cannon {
     }
 
     public boolean canShoot(int t) {
-        if (t < lastShoot) lastShoot = 0; // t can be reset externally, so we need to take this into account
+        if (t < lastShoot)
+            lastShoot = 0; // t can be reset externally, so we need to take this into account
 
         if (t - lastShoot >= waitTime) {
             lastShoot = t;

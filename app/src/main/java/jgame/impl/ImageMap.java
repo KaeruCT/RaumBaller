@@ -4,12 +4,12 @@ import jgame.JGImage;
 import jgame.JGPoint;
 
 public class ImageMap {
-    JGImage imageutil;
     public JGImage img;
     //public Image scaled_img=null;
     public int xofs, yofs;
     public int tilex, tiley;
     public int skipx, skipy;
+    JGImage imageutil;
 
     public ImageMap(JGImage imageutil,
                     String imgfile, int xofs, int yofs,

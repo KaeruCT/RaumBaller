@@ -50,12 +50,27 @@ import jgame.impl.JGEngineInterface;
  * creation when it is off view.
  */
 public class JGObject {
-    static int next_id = 0;
     /**
-     * global which might be accessed concurrently
+     * Expiry value: never expire.
      */
-    static JGEngineInterface default_engine = null;
-
+    public static final int expire_never = -1;
+    /**
+     * Expiry value: expire when off playfield.
+     */
+    public static final int expire_off_pf = -2;
+    /**
+     * Expiry value: expire when out of view.
+     */
+    public static final int expire_off_view = -3;
+    /**
+     * Expiry value: suspend when out of view.
+     */
+    public static final int suspend_off_view = -4;
+    /**
+     * Expiry value: suspend when out of view and expire when out of
+     * playfield.
+     */
+    public static final int suspend_off_view_expire_off_pf = -5;
     /**
      * The engine's viewWidth and viewHeight, stored in a local variable
      * for extra speed.
@@ -81,81 +96,18 @@ public class JGObject {
      * for extra speed.
      */
     public static int pfwidth, pfheight;
+
+    // remove object creation when changing anim
     /**
      * The engine's viewX/YOfs, stored in a local variable
      * for extra speed.
      */
     public static int viewxofs, viewyofs;
-
+    static int next_id = 0;
     /**
-     * Set the engine to connect to when a new object is created.  This
-     * should be called only by the JGEngine implementation.
-     *
-     * @param engine pass null to indicate the engine has exited.
-     * @return true if success; false if other engine already running.
+     * global which might be accessed concurrently
      */
-    public static boolean setEngine(JGEngineInterface engine) {
-        if (engine == null) {
-            default_engine = null;
-            return true;
-        }
-        if (default_engine != null) return false;
-        default_engine = engine;
-        // copy some constants from engine for fast access
-        viewwidth = engine.viewWidth();
-        viewheight = engine.viewHeight();
-        tilewidth = engine.tileWidth();
-        tileheight = engine.tileHeight();
-        updateEngineSettings();
-        return true;
-    }
-
-    /**
-     * Called automatically by the engine to signal changes to pfWrap,
-     * gameSpeed, pfWidth/Height, viewX/YOfs.  The current values of these
-     * settings are stored in the JGObject local variables.
-     */
-    public static void updateEngineSettings() {
-        pfwrapx = default_engine.pfWrapX();
-        pfwrapy = default_engine.pfWrapY();
-        gamespeed = default_engine.getGameSpeed();
-        pfwidth = default_engine.pfWidth();
-        pfheight = default_engine.pfHeight();
-        viewxofs = default_engine.viewXOfs();
-        viewyofs = default_engine.viewYOfs();
-    }
-
-    // remove object creation when changing anim
-
-    /**
-     * Print a message to the debug channel, using the object ID as source
-     */
-    public void dbgPrint(String msg) {
-        eng.dbgPrint(name, msg);
-    }
-
-    /**
-     * Expiry value: never expire.
-     */
-    public static final int expire_never = -1;
-    /**
-     * Expiry value: expire when off playfield.
-     */
-    public static final int expire_off_pf = -2;
-    /**
-     * Expiry value: expire when out of view.
-     */
-    public static final int expire_off_view = -3;
-    /**
-     * Expiry value: suspend when out of view.
-     */
-    public static final int suspend_off_view = -4;
-    /**
-     * Expiry value: suspend when out of view and expire when out of
-     * playfield.
-     */
-    public static final int suspend_off_view_expire_off_pf = -5;
-
+    static JGEngineInterface default_engine = null;
     /**
      * Object position
      */
@@ -173,11 +125,6 @@ public class JGObject {
      */
     public int colid;
     /**
-     * Object's global identifier; may not change during the lifetime of the
-     * object.
-     */
-    String name;
-    /**
      * Number of move() steps before object removes itself, -1 (default)
      * is never; -2 means expire when off-playfield, -3 means expire when
      * off-view, -4 means suspend when off-view, -5 means suspend when
@@ -190,27 +137,20 @@ public class JGObject {
      * view.  Default is true.
      */
     public boolean resume_in_view = true;
-
-    private boolean is_alive = true;
     /**
      * Indicates if object is suspended.
      */
     public boolean is_suspended = false;
-
     /**
-     * Get object's ID
+     * You can use this to call methods in the object's engine.  Even handier
+     * is to have the objects as inner class of the engine.
      */
-    public String getName() {
-        return name;
-    }
-
+    public JGEngineInterface eng;
     /**
-     * Get name of current image.
+     * Object's global identifier; may not change during the lifetime of the
+     * object.
      */
-    public String getImageName() {
-        return imgname;
-    }
-
+    String name;
     String imgname = null;
     Animation anim = null; /* will update imgname if set */
     String animid = null;
@@ -229,13 +169,6 @@ public class JGObject {
      * The bbox that should override the image bbox if not null.
      */
     JGRectangle bbox = null;
-
-    /**
-     * You can use this to call methods in the object's engine.  Even handier
-     * is to have the objects as inner class of the engine.
-     */
-    public JGEngineInterface eng;
-
     /* dimensions of last time drawn  */
     double lastx = 0, lasty = 0;
     /* bbox/tilebbox is copied into these variables each time */
@@ -245,263 +178,16 @@ public class JGObject {
      * otherwise. */
     JGRectangle lastbbox = null;
     JGRectangle lasttilebbox = null; /* actual coordinates */
-
-    private void initObject(JGEngineInterface engine,
-                            String name, int collisionid) {
-        this.eng = engine;
-        this.name = name;
-        colid = collisionid;
-        // XXX the test on suspend should really be done after the
-        // constructor of the subclass is finished, in case the position is
-        // changed later in the constructor.
-        if ((int) expiry == suspend_off_view
-                || (int) expiry == suspend_off_view_expire_off_pf) {
-            if (!isInView(eng.getOffscreenMarginX(), eng.getOffscreenMarginY()))
-                suspend();
-        }
-        eng.markAddObject(this);
-    }
-
-    /**
-     * Clear tile bbox definition so that we use the regular bbox again.
-     */
-    public void clearTileBBox() {
-        tilebbox = null;
-    }
-
-    public void setTileBBox(int x, int y, int width, int height) {
-        tilebbox = new JGRectangle(x, y, width, height);
-    }
-
-    /**
-     * Set bbox definition to override the image bbox.
-     */
-    public void setBBox(int x, int y, int width, int height) {
-        bbox = new JGRectangle(x, y, width, height);
-    }
-
-    /**
-     * Clear bbox definition so that we use the image bbox again.
-     */
-    public void clearBBox() {
-        bbox = null;
-    }
-
-
-    ///** Set object's tile span by defining the number of tiles and the margin
-    // * by which the object's position is snapped for determining the object's
-    // * top left position.  */
-    //public void setTiles(int xtiles,int ytiles,int gridsnapx,int gridsnapy){
-    //	this.xtiles=xtiles;
-    //	this.ytiles=ytiles;
-    //	this.gridsnapx=gridsnapx;
-    //	this.gridsnapy=gridsnapy;
-    //}
-
-    public void setPos(double x, double y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    /**
-     * Set absolute speed.  Set xdir, ydir to the sign of the supplied speed,
-     * and xspeed and yspeed to the absolute value of the supplied speed.
-     * Passing a value of exactly 0.0 sets the dir to 0.
-     */
-    public void setSpeedAbs(double xspeed, double yspeed) {
-        if (xspeed < 0.0) {
-            xdir = -1;
-            this.xspeed = -xspeed;
-        } else if (xspeed == 0.0) {
-            xdir = 0;
-            this.xspeed = 0;
-        } else {
-            xdir = 1;
-            this.xspeed = xspeed;
-        }
-        if (yspeed < 0.0) {
-            ydir = -1;
-            this.yspeed = -yspeed;
-        } else if (yspeed == 0.0) {
-            ydir = 0;
-            this.yspeed = 0;
-        } else {
-            ydir = 1;
-            this.yspeed = yspeed;
-        }
-    }
-
-    /**
-     * Set speed and direction in one go.
-     */
-    public void setDirSpeed(int xdir, int ydir, double xspeed, double yspeed) {
-        this.xdir = xdir;
-        this.ydir = ydir;
-        this.xspeed = xspeed;
-        this.yspeed = yspeed;
-    }
-
-    /**
-     * Set speed and direction in one go.
-     */
-    public void setDirSpeed(int xdir, int ydir, double speed) {
-        this.xdir = xdir;
-        this.ydir = ydir;
-        this.xspeed = speed;
-        this.yspeed = speed;
-    }
-
-    /**
-     * Set relative speed; the values are copied into xspeed,yspeed.
-     */
-    public void setSpeed(double xspeed, double yspeed) {
-        this.xspeed = xspeed;
-        this.yspeed = yspeed;
-    }
-
-    /**
-     * Set relative speed; the value is copied into xspeed,yspeed.
-     */
-    public void setSpeed(double speed) {
-        this.xspeed = speed;
-        this.yspeed = speed;
-    }
-
-    /**
-     * Set direction.
-     */
-    public void setDir(int xdir, int ydir) {
-        this.xdir = xdir;
-        this.ydir = ydir;
-    }
-
-    /**
-     * Set ID of animation or image to display.  First, look for an animation
-     * with the given ID, and setAnim if found.  Otherwise, look for an image
-     * with the given ID, and setImage if found.  Passing null clears the
-     * image and stops the animation.
-     */
-    public void setGraphic(String gfxname) {
-        if (gfxname == null) {
-            setImage(gfxname);
-        } else {
-            Animation newanim = eng.getAnimation(gfxname);
-            if (newanim != null) {
-                setAnim(gfxname);
-            } else {
-                setImage(gfxname);
-            }
-        }
-    }
-
-    /**
-     * Set ID of image to display; clear animation. Passing null clears
-     * the image.
-     */
-    public void setImage(String imgname) {
-        this.imgname = imgname;
-        imgbbox = null;
-        anim = null;
-        animid = null;
-        //stopAnim();
-    }
-
-    /**
-     * Get object's current animation ID, or image ID if not defined.
-     */
-    public String getGraphic() {
-        if (animid != null) return animid;
-        return imgname;
-    }
-
-    /* animation */
-
-    /**
-     * Set the animation to the given default animation definition, or leave
-     * it as it was if the anim_id is unchanged.  Subsequent changes made in
-     * the animation's parameters do not change the default animation
-     * definition. The changes will be preserved if another call to
-     * setAnimation is made with the same anim_id.  If you want to reset the
-     * animation to the original settings, use resetAnimation().
-     */
-    public void setAnim(String anim_id) {
-        if (animid == null || !animid.equals(anim_id)) {
-            anim = eng.getAnimation(anim_id);
-            if (anim == null) {
-                eng.dbgPrint(name, "Warning: animation " + anim_id + " not found.");
-                return;
-            }
-            anim = anim.copy();
-            animid = anim_id;
-            imgname = anim.getCurrentFrame();
-        }
-    }
-
-    /**
-     * Always set the animation to the given default animation definition,
-     * resetting any changes or updates made to the animation. Subsequent
-     * changes made in the animation's parameters do not change the default
-     * animation definition.
-     */
-    public void resetAnim(String anim_id) {
-        anim = eng.getAnimation(anim_id).copy();
-        animid = anim_id;
-    }
-
-    /**
-     * Clear the animation, the object's current image will remain.
-     */
-    public void clearAnim() {
-        anim = null;
-        animid = null;
-    }
-
-    /**
-     * Get the ID of the currently running animation.
-     */
-    public String getAnimId() {
-        return animid;
-    }
-
-    //public void setAnimIncrement(int increment) {
-    //	if (anim!=null) anim.increment=increment;
-    //}
-
-    /**
-     * Set animation speed; speed may be less than 0, indicating that
-     * animation should go backwards.
-     */
-    public void setAnimSpeed(double speed) {
-        if (anim != null) {
-            if (speed >= 0) {
-                anim.speed = speed;
-                anim.increment = 1;
-            } else {
-                anim.speed = -speed;
-                anim.increment = -1;
-            }
-        }
-    }
-
-    public void setAnimPingpong(boolean pingpong) {
-        if (anim != null) anim.pingpong = pingpong;
-    }
-
-    public void startAnim() {
-        if (anim != null) anim.start();
-    }
-
-    public void stopAnim() {
-        if (anim != null) anim.stop();
-    }
-
-    /**
-     * Reset the animation's state to the start state.
-     */
-    public void resetAnim() {
-        if (anim != null) anim.reset();
-    }
-
+    // temp variables used by get*Tiles and isOnScreen/PF
+    JGRectangle temp_bbox_copy = new JGRectangle();
+    // variables returned by get*Tiles
+    JGRectangle tiles_copy = null;
+    JGRectangle last_tiles_copy = null;
+    JGRectangle center_tiles_copy = new JGRectangle();
+    JGRectangle last_center_tiles_copy = null;
+    JGPoint center_tile_copy = null;
+    JGPoint tl_tile_copy = null;
+    private boolean is_alive = true;
 
     /**
      * Create object.
@@ -548,6 +234,17 @@ public class JGObject {
         setGraphic(gfxname);
         setTileBBox(tilebbox_x, tilebbox_y, tilebbox_width, tilebbox_height);
     }
+
+
+    ///** Set object's tile span by defining the number of tiles and the margin
+    // * by which the object's position is snapped for determining the object's
+    // * top left position.  */
+    //public void setTiles(int xtiles,int ytiles,int gridsnapx,int gridsnapy){
+    //	this.xtiles=xtiles;
+    //	this.ytiles=ytiles;
+    //	this.gridsnapx=gridsnapx;
+    //	this.gridsnapy=gridsnapy;
+    //}
 
     /**
      * Create object with given tile bbox and expiry, old style.
@@ -688,9 +385,6 @@ public class JGObject {
         this.expiry = expiry;
     }
 
-
-    /** Flash style constructors */
-
     /**
      * Create object with given absolute speed, expiry, new
      * style.  New-style constructors enable easier porting to JGame Flash.
@@ -753,9 +447,372 @@ public class JGObject {
         this.expiry = expiry;
     }
 
+    /* animation */
+
+    /**
+     * Set the engine to connect to when a new object is created.  This
+     * should be called only by the JGEngine implementation.
+     *
+     * @param engine pass null to indicate the engine has exited.
+     * @return true if success; false if other engine already running.
+     */
+    public static boolean setEngine(JGEngineInterface engine) {
+        if (engine == null) {
+            default_engine = null;
+            return true;
+        }
+        if (default_engine != null) return false;
+        default_engine = engine;
+        // copy some constants from engine for fast access
+        viewwidth = engine.viewWidth();
+        viewheight = engine.viewHeight();
+        tilewidth = engine.tileWidth();
+        tileheight = engine.tileHeight();
+        updateEngineSettings();
+        return true;
+    }
+
+    /**
+     * Called automatically by the engine to signal changes to pfWrap,
+     * gameSpeed, pfWidth/Height, viewX/YOfs.  The current values of these
+     * settings are stored in the JGObject local variables.
+     */
+    public static void updateEngineSettings() {
+        pfwrapx = default_engine.pfWrapX();
+        pfwrapy = default_engine.pfWrapY();
+        gamespeed = default_engine.getGameSpeed();
+        pfwidth = default_engine.pfWidth();
+        pfheight = default_engine.pfHeight();
+        viewxofs = default_engine.viewXOfs();
+        viewyofs = default_engine.viewYOfs();
+    }
+
+    /**
+     * A Boolean AND shorthand to use for collision;
+     * returns (value&amp;mask) != 0.
+     */
+    public static boolean and(int value, int mask) {
+        return (value & mask) != 0;
+    }
+
+    /**
+     * Print a message to the debug channel, using the object ID as source
+     */
+    public void dbgPrint(String msg) {
+        eng.dbgPrint(name, msg);
+    }
+
+    //public void setAnimIncrement(int increment) {
+    //	if (anim!=null) anim.increment=increment;
+    //}
+
+    /**
+     * Get object's ID
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Get name of current image.
+     */
+    public String getImageName() {
+        return imgname;
+    }
+
+    private void initObject(JGEngineInterface engine,
+                            String name, int collisionid) {
+        this.eng = engine;
+        this.name = name;
+        colid = collisionid;
+        // XXX the test on suspend should really be done after the
+        // constructor of the subclass is finished, in case the position is
+        // changed later in the constructor.
+        if ((int) expiry == suspend_off_view
+                || (int) expiry == suspend_off_view_expire_off_pf) {
+            if (!isInView(eng.getOffscreenMarginX(), eng.getOffscreenMarginY()))
+                suspend();
+        }
+        eng.markAddObject(this);
+    }
+
+    /**
+     * Clear tile bbox definition so that we use the regular bbox again.
+     */
+    public void clearTileBBox() {
+        tilebbox = null;
+    }
+
+    public void setTileBBox(int x, int y, int width, int height) {
+        tilebbox = new JGRectangle(x, y, width, height);
+    }
+
+    /**
+     * Set bbox definition to override the image bbox.
+     */
+    public void setBBox(int x, int y, int width, int height) {
+        bbox = new JGRectangle(x, y, width, height);
+    }
+
+    /**
+     * Clear bbox definition so that we use the image bbox again.
+     */
+    public void clearBBox() {
+        bbox = null;
+    }
+
+    public void setPos(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * Set absolute speed.  Set xdir, ydir to the sign of the supplied speed,
+     * and xspeed and yspeed to the absolute value of the supplied speed.
+     * Passing a value of exactly 0.0 sets the dir to 0.
+     */
+    public void setSpeedAbs(double xspeed, double yspeed) {
+        if (xspeed < 0.0) {
+            xdir = -1;
+            this.xspeed = -xspeed;
+        } else if (xspeed == 0.0) {
+            xdir = 0;
+            this.xspeed = 0;
+        } else {
+            xdir = 1;
+            this.xspeed = xspeed;
+        }
+        if (yspeed < 0.0) {
+            ydir = -1;
+            this.yspeed = -yspeed;
+        } else if (yspeed == 0.0) {
+            ydir = 0;
+            this.yspeed = 0;
+        } else {
+            ydir = 1;
+            this.yspeed = yspeed;
+        }
+    }
+
+    /**
+     * Set speed and direction in one go.
+     */
+    public void setDirSpeed(int xdir, int ydir, double xspeed, double yspeed) {
+        this.xdir = xdir;
+        this.ydir = ydir;
+        this.xspeed = xspeed;
+        this.yspeed = yspeed;
+    }
+
+    /**
+     * Set speed and direction in one go.
+     */
+    public void setDirSpeed(int xdir, int ydir, double speed) {
+        this.xdir = xdir;
+        this.ydir = ydir;
+        this.xspeed = speed;
+        this.yspeed = speed;
+    }
+
+    /**
+     * Set relative speed; the values are copied into xspeed,yspeed.
+     */
+    public void setSpeed(double xspeed, double yspeed) {
+        this.xspeed = xspeed;
+        this.yspeed = yspeed;
+    }
+
+    /**
+     * Set relative speed; the value is copied into xspeed,yspeed.
+     */
+    public void setSpeed(double speed) {
+        this.xspeed = speed;
+        this.yspeed = speed;
+    }
+
+    /**
+     * Set direction.
+     */
+    public void setDir(int xdir, int ydir) {
+        this.xdir = xdir;
+        this.ydir = ydir;
+    }
+
+    /**
+     * Set ID of image to display; clear animation. Passing null clears
+     * the image.
+     */
+    public void setImage(String imgname) {
+        this.imgname = imgname;
+        imgbbox = null;
+        anim = null;
+        animid = null;
+        //stopAnim();
+    }
+
+
+    /** Flash style constructors */
+
+    /**
+     * Get object's current animation ID, or image ID if not defined.
+     */
+    public String getGraphic() {
+        if (animid != null) return animid;
+        return imgname;
+    }
+
+    /**
+     * Set ID of animation or image to display.  First, look for an animation
+     * with the given ID, and setAnim if found.  Otherwise, look for an image
+     * with the given ID, and setImage if found.  Passing null clears the
+     * image and stops the animation.
+     */
+    public void setGraphic(String gfxname) {
+        if (gfxname == null) {
+            setImage(gfxname);
+        } else {
+            Animation newanim = eng.getAnimation(gfxname);
+            if (newanim != null) {
+                setAnim(gfxname);
+            } else {
+                setImage(gfxname);
+            }
+        }
+    }
+
+    /**
+     * Set the animation to the given default animation definition, or leave
+     * it as it was if the anim_id is unchanged.  Subsequent changes made in
+     * the animation's parameters do not change the default animation
+     * definition. The changes will be preserved if another call to
+     * setAnimation is made with the same anim_id.  If you want to reset the
+     * animation to the original settings, use resetAnimation().
+     */
+    public void setAnim(String anim_id) {
+        if (animid == null || !animid.equals(anim_id)) {
+            anim = eng.getAnimation(anim_id);
+            if (anim == null) {
+                eng.dbgPrint(name, "Warning: animation " + anim_id + " not found.");
+                return;
+            }
+            anim = anim.copy();
+            animid = anim_id;
+            imgname = anim.getCurrentFrame();
+        }
+    }
+
 
     /* Bounding box functions.  Return copies. May return null if
      * image is not defined. */
+
+    /**
+     * Always set the animation to the given default animation definition,
+     * resetting any changes or updates made to the animation. Subsequent
+     * changes made in the animation's parameters do not change the default
+     * animation definition.
+     */
+    public void resetAnim(String anim_id) {
+        anim = eng.getAnimation(anim_id).copy();
+        animid = anim_id;
+    }
+
+    /**
+     * Clear the animation, the object's current image will remain.
+     */
+    public void clearAnim() {
+        anim = null;
+        animid = null;
+    }
+
+    //JGRectangle bbox_const = new JGRectangle(0,0,0,0);
+
+    /** Get object collision bounding box in pixels.
+     * Has actual coordinate offset.  Uses a fixed temp variable to store the
+     * bbox, so no object is created.  The returned object may not be modified,
+     * nor its contents used after the method is re-entered.
+     * @return bbox in pixel coordinates, null if no bbox
+     */
+    //public JGRectangle getBBoxConst() {
+    //	if (!getBBox(bbox_const)) return null;
+    //	return bbox_const;
+    //}
+
+    /** Get object collision bounding box in pixels of previous frame.
+     * @return pixel coordinates, null if no bbox */
+//	public JGRectangle getLastBBox() {
+//		if (lastbbox==null) return null;
+//		return new JGRectangle(lastbbox);
+//	}
+
+    /**
+     * Get the ID of the currently running animation.
+     */
+    public String getAnimId() {
+        return animid;
+    }
+
+    /**
+     * Set animation speed; speed may be less than 0, indicating that
+     * animation should go backwards.
+     */
+    public void setAnimSpeed(double speed) {
+        if (anim != null) {
+            if (speed >= 0) {
+                anim.speed = speed;
+                anim.increment = 1;
+            } else {
+                anim.speed = -speed;
+                anim.increment = -1;
+            }
+        }
+    }
+
+    //JGRectangle tilebbox_const = new JGRectangle(0,0,0,0);
+    /** Get tile collision bounding box in pixels.
+     * Bounding box has actual coordinate offset.   Returns reference to a
+     * fixed internal variable.  Do not change the object returned, avoid
+     * re-entering this method and then using the previous value returned.
+     * @return pixel coordinates, null if no bbox */
+    //public JGRectangle getTileBBoxConst() {
+    //	if (tilebbox==null) {
+    //		JGRectangle bbox = getBBoxConst();
+    //		if (bbox==null) return null;
+    //		tilebbox_const.copyFrom(bbox);
+    //		return tilebbox_const;
+    //	}
+    //	tilebbox_const.x = (int)x+tilebbox.x;
+    //	tilebbox_const.y = (int)y+tilebbox.y;
+    //	tilebbox_const.width = tilebbox.width;
+    //	tilebbox_const.height= tilebbox.height;
+    //	return tilebbox_const;
+    //}
+
+
+    /** Get tile collision bounding box of previous frame.
+     * @return pixel coordinates, null if no bbox */
+//	public JGRectangle getLastTileBBox() {
+//		if (lasttilebbox==null) return null;
+//		return new JGRectangle(lasttilebbox);
+//	}
+
+    public void setAnimPingpong(boolean pingpong) {
+        if (anim != null) anim.pingpong = pingpong;
+    }
+
+    public void startAnim() {
+        if (anim != null) anim.start();
+    }
+
+    public void stopAnim() {
+        if (anim != null) anim.stop();
+    }
+
+    /**
+     * Reset the animation's state to the start state.
+     */
+    public void resetAnim() {
+        if (anim != null) anim.reset();
+    }
 
     /**
      * Copy object collision bounding box in pixels into bbox_copy. Has actual
@@ -787,6 +844,9 @@ public class JGObject {
         return false;
     }
 
+
+    /* snap functions */
+
     /**
      * Get object collision bounding box in pixels.
      * Has actual coordinate offset.
@@ -803,26 +863,6 @@ public class JGObject {
         }
         return null;
     }
-
-    //JGRectangle bbox_const = new JGRectangle(0,0,0,0);
-
-    /** Get object collision bounding box in pixels.
-     * Has actual coordinate offset.  Uses a fixed temp variable to store the
-     * bbox, so no object is created.  The returned object may not be modified,
-     * nor its contents used after the method is re-entered.
-     * @return bbox in pixel coordinates, null if no bbox
-     */
-    //public JGRectangle getBBoxConst() {
-    //	if (!getBBox(bbox_const)) return null;
-    //	return bbox_const;
-    //}
-
-    /** Get object collision bounding box in pixels of previous frame.
-     * @return pixel coordinates, null if no bbox */
-//	public JGRectangle getLastBBox() {
-//		if (lastbbox==null) return null;
-//		return new JGRectangle(lastbbox);
-//	}
 
     /**
      * Get tile collision bounding box in pixels and store it in bbox_copy.
@@ -841,6 +881,13 @@ public class JGObject {
         bbox_copy.height = tilebbox.height;
         return true;
     }
+    ///** Snap object to grid. */
+    //public void snapToGrid(int gridsnapx, int gridsnapy) {
+    //	JGPoint p = new JGPoint((int)x,(int)y);
+    //	eng.snapToGrid(p,gridsnapx,gridsnapy);
+    //	x = p.x;
+    //	y = p.y;
+    //}
 
     /**
      * Get tile collision bounding box in pixels.
@@ -854,33 +901,7 @@ public class JGObject {
                 tilebbox.width, tilebbox.height);
     }
 
-    //JGRectangle tilebbox_const = new JGRectangle(0,0,0,0);
-    /** Get tile collision bounding box in pixels.
-     * Bounding box has actual coordinate offset.   Returns reference to a
-     * fixed internal variable.  Do not change the object returned, avoid
-     * re-entering this method and then using the previous value returned.
-     * @return pixel coordinates, null if no bbox */
-    //public JGRectangle getTileBBoxConst() {
-    //	if (tilebbox==null) {
-    //		JGRectangle bbox = getBBoxConst();
-    //		if (bbox==null) return null;
-    //		tilebbox_const.copyFrom(bbox);
-    //		return tilebbox_const;
-    //	}
-    //	tilebbox_const.x = (int)x+tilebbox.x;
-    //	tilebbox_const.y = (int)y+tilebbox.y;
-    //	tilebbox_const.width = tilebbox.width;
-    //	tilebbox_const.height= tilebbox.height;
-    //	return tilebbox_const;
-    //}
-
-
-    /** Get tile collision bounding box of previous frame.
-     * @return pixel coordinates, null if no bbox */
-//	public JGRectangle getLastTileBBox() {
-//		if (lasttilebbox==null) return null;
-//		return new JGRectangle(lasttilebbox);
-//	}
+    /* bg interaction */
 
     /**
      * Get collision bounding box of object's image (same as object's default
@@ -929,9 +950,6 @@ public class JGObject {
         return lasty;
     }
 
-
-    /* snap functions */
-
     /**
      * Snap object to grid using the default gridsnap margin of
      * (xspeed*gamespeed-epsilon, yspeed*gamespeed-epsilon),
@@ -952,13 +970,6 @@ public class JGObject {
         x = eng.snapToGridX(x, gridsnapx);
         y = eng.snapToGridY(y, gridsnapy);
     }
-    ///** Snap object to grid. */
-    //public void snapToGrid(int gridsnapx, int gridsnapy) {
-    //	JGPoint p = new JGPoint((int)x,(int)y);
-    //	eng.snapToGrid(p,gridsnapx,gridsnapy);
-    //	x = p.x;
-    //	y = p.y;
-    //}
 
     /**
      * Snap an object's tile bbox corner to grid; floats are rounded down.
@@ -986,18 +997,19 @@ public class JGObject {
         y = bys;
     }
 
-    /* bg interaction */
-
-    // temp variables used by get*Tiles and isOnScreen/PF
-    JGRectangle temp_bbox_copy = new JGRectangle();
-
-    // variables returned by get*Tiles
-    JGRectangle tiles_copy = null;
-    JGRectangle last_tiles_copy = null;
-    JGRectangle center_tiles_copy = new JGRectangle();
-    JGRectangle last_center_tiles_copy = null;
-    JGPoint center_tile_copy = null;
-    JGPoint tl_tile_copy = null;
+    /** Get the tile index coordinates of the object's previous tile bbox.
+     * Always returns the same temp object, so no object creation is necessary.
+     * @return tile index coordinates, null if no tile bbox */
+//	public JGRectangle getLastTiles() {
+//		//orig: return eng.getTiles(getLastTileBBox());
+//		// XXX object creation in getLastTileBBox
+//		JGRectangle bbox = getLastTileBBox();
+//		if (bbox==null) return null;
+//		if (last_tiles_copy==null) last_tiles_copy = new JGRectangle();
+//		if (eng.getTiles(last_tiles_copy,bbox))
+//			return last_tiles_copy;
+//		return null;
+//	}
 
     /**
      * Get the tile index coordinates of all the tiles that the object's
@@ -1014,20 +1026,6 @@ public class JGObject {
             return tiles_copy;
         return null;
     }
-
-    /** Get the tile index coordinates of the object's previous tile bbox.
-     * Always returns the same temp object, so no object creation is necessary.
-     * @return tile index coordinates, null if no tile bbox */
-//	public JGRectangle getLastTiles() {
-//		//orig: return eng.getTiles(getLastTileBBox());
-//		// XXX object creation in getLastTileBBox
-//		JGRectangle bbox = getLastTileBBox();
-//		if (bbox==null) return null;
-//		if (last_tiles_copy==null) last_tiles_copy = new JGRectangle();
-//		if (eng.getTiles(last_tiles_copy,bbox))
-//			return last_tiles_copy;
-//		return null;
-//	}
 
     /**
      * get center tiles from bbox and store them in tiles_copy
@@ -1061,6 +1059,19 @@ public class JGObject {
         return tiles_copy;
     }
 
+    /** Get the tile indices spanning the tiles that the object's last
+     * bounding box had the most overlap with.
+     * Always returns the same temp object, so no object creation is necessary.
+     *@return tile index coordinates, null if no tile bbox */
+//	public JGRectangle getLastCenterTiles() {
+//		// XXX object creation in getLastTileBBox
+//		JGRectangle bbox=getLastTileBBox();
+//		if (bbox==null) return null;
+//		if (last_center_tiles_copy==null)
+//			last_center_tiles_copy = new JGRectangle();
+//		return getCenterTiles(bbox,last_center_tiles_copy);
+//	}
+
     /**
      * Get the tile indices spanning the tiles that the object has the
      * most overlap with.  The size of the span is
@@ -1077,19 +1088,6 @@ public class JGObject {
          * that will be the center of our tile span. */
         return getCenterTiles(temp_bbox_copy, center_tiles_copy);
     }
-
-    /** Get the tile indices spanning the tiles that the object's last
-     * bounding box had the most overlap with.
-     * Always returns the same temp object, so no object creation is necessary.
-     *@return tile index coordinates, null if no tile bbox */
-//	public JGRectangle getLastCenterTiles() {
-//		// XXX object creation in getLastTileBBox
-//		JGRectangle bbox=getLastTileBBox();
-//		if (bbox==null) return null;
-//		if (last_center_tiles_copy==null)
-//			last_center_tiles_copy = new JGRectangle();
-//		return getCenterTiles(bbox,last_center_tiles_copy);
-//	}
 
     /**
      * Get the top left center tile of the object (that is, the x and y of
@@ -1230,6 +1228,12 @@ public class JGObject {
         }
     }
 
+	/* something odd going on here: it fails to find the checkBGCollision in
+	 * Engine when I define this one in Object
+	public int checkBGCollision() {
+		return eng.checkBGCollision(getTileBBox());
+	}*/
+
     /**
      * Check collision of this object with other objects, when the object
      * position would be offset by xofs,yofs.  Returns 0 when object's bbox is
@@ -1247,12 +1251,6 @@ public class JGObject {
         return retcid;
     }
 
-	/* something odd going on here: it fails to find the checkBGCollision in
-	 * Engine when I define this one in Object
-	public int checkBGCollision() {
-		return eng.checkBGCollision(getTileBBox());
-	}*/
-
     /**
      * Check collision of tiles within given rectangle, return the OR of all
      * cids found.  This method just calls eng.checkBGCollision; it's here
@@ -1262,7 +1260,6 @@ public class JGObject {
     public int checkBGCollision(JGRectangle r) {
         return eng.checkBGCollision(r);
     }
-
 
     /**
      * Get OR of Tile Cids of the object's current tile bbox at the current
@@ -1318,6 +1315,8 @@ public class JGObject {
         return temp_bbox_copy.y <= viewyofs + viewheight + marginy;
     }
 
+    /* computation */
+
     /**
      * Margin is the margin beyond which the object is considered off the
      * playfield.
@@ -1343,16 +1342,6 @@ public class JGObject {
             return temp_bbox_copy.y <= pfheight + marginy;
         }
         return true;
-    }
-
-    /* computation */
-
-    /**
-     * A Boolean AND shorthand to use for collision;
-     * returns (value&amp;mask) != 0.
-     */
-    public static boolean and(int value, int mask) {
-        return (value & mask) != 0;
     }
 
     public double random(double min, double max) {

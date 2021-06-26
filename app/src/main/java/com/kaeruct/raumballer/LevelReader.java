@@ -8,14 +8,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
-import java.nio.charset.StandardCharsets;
 
 public class LevelReader {
 
     private final BufferedReader reader;
+    private final AndroidGame game;
     private String[] waveClasses;
     private String currentLine;
-    private final AndroidGame game;
     private int wavesDone;
     private boolean complete;
 

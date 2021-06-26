@@ -22,18 +22,60 @@ import java.util.Random;
  */
 public class SortedArray {
 
-    int capacity;
-    int growspeed;
-
     public int size = 0;
     public String[] keys;
     public Object[] values;
+    int capacity;
+    int growspeed;
 
     public SortedArray(int initialcapacity) {
         capacity = initialcapacity;
         growspeed = initialcapacity;
         keys = new String[capacity];
         values = new Object[capacity];
+    }
+
+    /**
+     * test method
+     */
+    public static void main(String[] args) {
+        System.out.println("Testing SortedArray ...");
+        Object dummyobject = "dummy";
+        SortedArray arr_accum = new SortedArray(20);
+        Random random = new Random();
+        for (int n = 0; n < 1000; n++) {
+            // create two random sorted arrays and combine them
+            SortedArray arr1 = new SortedArray(21);
+            SortedArray arr2 = new SortedArray(22);
+            // second array has more collisions
+            for (int i = 0; i < 100; i++) {
+                arr2.put("key" + (int) (100 + 20 * random.nextDouble()), dummyobject);
+                arr2.remove("key" + (int) (100 + 20 * random.nextDouble()));
+            }
+            // first array has few collisions
+            for (int i = 0; i < 100; i++) {
+                arr1.put("key" + (int) (100 + 100 * random.nextDouble()), dummyobject);
+                arr1.remove("key" + (int) (100 + 100 * random.nextDouble()));
+            }
+            arr1.checkSanity();
+            arr2.checkSanity();
+            arr1.remove(arr2);
+            arr1.checkSanity();
+            SortedArray arr_added = new SortedArray(23);
+            arr_added.put(arr2);
+            arr_added.put(arr1);
+            arr_added.checkSanity();
+            arr_added.remove(arr2);
+            arr_added.checkSanity();
+            arr_added.remove(arr1);
+            arr_added.checkSanity();
+            arr_accum.put(arr1);
+            arr_accum.remove(arr2);
+            arr_accum.checkSanity();
+            //System.out.println("Array 1:" + arr1+"\n");
+            //System.out.println("Array 2:" + arr2+"\n");
+            //System.out.println("Combined:" + arr_added+"\n");
+        }
     }
 
     public void clear() {
@@ -229,49 +271,6 @@ public class SortedArray {
                 System.err.println(toString());
                 throw new Error("Assertion failure!");
             }
-        }
-    }
-
-    /**
-     * test method
-     */
-    public static void main(String[] args) {
-        System.out.println("Testing SortedArray ...");
-        Object dummyobject = "dummy";
-        SortedArray arr_accum = new SortedArray(20);
-        Random random = new Random();
-        for (int n = 0; n < 1000; n++) {
-            // create two random sorted arrays and combine them
-            SortedArray arr1 = new SortedArray(21);
-            SortedArray arr2 = new SortedArray(22);
-            // second array has more collisions
-            for (int i = 0; i < 100; i++) {
-                arr2.put("key" + (int) (100 + 20 * random.nextDouble()), dummyobject);
-                arr2.remove("key" + (int) (100 + 20 * random.nextDouble()));
-            }
-            // first array has few collisions
-            for (int i = 0; i < 100; i++) {
-                arr1.put("key" + (int) (100 + 100 * random.nextDouble()), dummyobject);
-                arr1.remove("key" + (int) (100 + 100 * random.nextDouble()));
-            }
-            arr1.checkSanity();
-            arr2.checkSanity();
-            arr1.remove(arr2);
-            arr1.checkSanity();
-            SortedArray arr_added = new SortedArray(23);
-            arr_added.put(arr2);
-            arr_added.put(arr1);
-            arr_added.checkSanity();
-            arr_added.remove(arr2);
-            arr_added.checkSanity();
-            arr_added.remove(arr1);
-            arr_added.checkSanity();
-            arr_accum.put(arr1);
-            arr_accum.remove(arr2);
-            arr_accum.checkSanity();
-            //System.out.println("Array 1:" + arr1+"\n");
-            //System.out.println("Array 2:" + arr2+"\n");
-            //System.out.println("Combined:" + arr_added+"\n");
         }
     }
 

@@ -37,7 +37,7 @@ public class SparkEyeWave extends Wave {
         for (int i = 0; i < num; i++) {
             double ang = Math.PI * (2 * (num / 2 - i) / num);
 
-            Asterisk a = (Asterisk)super.spawn(
+            Asterisk a = (Asterisk) super.spawn(
                     xpos,
                     ypos,
                     6,

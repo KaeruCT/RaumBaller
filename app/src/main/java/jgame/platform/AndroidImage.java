@@ -20,16 +20,15 @@ class AndroidImage implements JGImage {
 
     //static Hashtable loadedimages = new Hashtable(); /* filenames => Images */
 
-    Bitmap img = null;
-
-    //BitmapFactory.Options opaquebitmapopts = null;
-
     // colour which semi transparent pixels in scaled image should render to
     static JGColor bg_col = JGColor.black;
 
+    //BitmapFactory.Options opaquebitmapopts = null;
+    Bitmap img = null;
     // true means image is certainly opaque, false means image may be
     // transparent
     boolean is_opaque = false;
+    JGPoint size = null;
 
     /**
      * Create new image and define any known settings.
@@ -47,6 +46,8 @@ class AndroidImage implements JGImage {
         this.img = img;
     }
 
+    /* static in spirit*/
+
     /**
      * Create handle to image functions.
      */
@@ -56,11 +57,20 @@ class AndroidImage implements JGImage {
         //	getPreferredBitmapFormat(JGEngine.displayformat);
     }
 
-    /* static in spirit*/
+    // not useful: cannot retrieve display format
+    public static Bitmap.Config getPreferredBitmapFormat(int displayformat) {
+        if (displayformat == PixelFormat.RGB_565)
+            return Bitmap.Config.RGB_565;
+        else
+            return Bitmap.Config.ARGB_8888;
+    }
 
     public JGImage loadImage(String imgfile) {
         return loadImage(JGEngine.assets, imgfile);
     }
+
+
+    /* object-related methods */
 
     /**
      * load image from assets directory
@@ -85,11 +95,6 @@ class AndroidImage implements JGImage {
     public void purgeImage(String imgfile) {
         //if (loadedimages.containsKey(imgfile)) loadedimages.remove(imgfile);
     }
-
-
-    /* object-related methods */
-
-    JGPoint size = null;
 
     public JGPoint getSize() {
         if (size != null) return size;
@@ -361,14 +366,6 @@ class AndroidImage implements JGImage {
 //		}
 //		return new AndroidImage(Bitmap.createRGBImage(pix,srcwidth,srcheight,
 //				is_transparent),bg_col,!is_transparent);
-    }
-
-    // not useful: cannot retrieve display format
-    public static Bitmap.Config getPreferredBitmapFormat(int displayformat) {
-        if (displayformat == PixelFormat.RGB_565)
-            return Bitmap.Config.RGB_565;
-        else
-            return Bitmap.Config.ARGB_8888;
     }
 
 }

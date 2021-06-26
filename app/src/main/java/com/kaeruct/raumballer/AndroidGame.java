@@ -21,20 +21,14 @@ import jgame.platform.JGEngine;
 
 public class AndroidGame extends JGEngine {
 
-    private PlayerShip player;
-    private GameState titleState;
-    private GameState gameOverState;
-    private GameState levelDoneState;
-    private GameState enterHighscoreState;
-    private GameState inGameState;
-    public int selectedShip = 0;
     public static final byte PLAYER_ID = 1;
     public static final byte ENEMY_ID = 2;
-    public int score;
-    public int starCount;
-    private boolean levelDone = false;
     public final int WIDTH = 48 / 3;
     public final int HEIGHT = 68 / 3;
+    private final int lastLevel = 4;
+    public int selectedShip = 0;
+    public int score;
+    public int starCount;
     public LevelReader levelReader;
     public ArrayList<Wave> waves;
     public int t;
@@ -44,13 +38,15 @@ public class AndroidGame extends JGEngine {
     public int lastDown = -1;
     public int lastUp;
     public int level = 0;
-    private final int lastLevel = 4;
     public int starMax = 128;
     public int starFreq = 80;
-
-    public static void main(String[] args) {
-        new AndroidGame(new JGPoint(0, 0));
-    }
+    private PlayerShip player;
+    private GameState titleState;
+    private GameState gameOverState;
+    private GameState levelDoneState;
+    private GameState enterHighscoreState;
+    private GameState inGameState;
+    private boolean levelDone = false;
 
     /**
      * Application constructor.
@@ -64,6 +60,10 @@ public class AndroidGame extends JGEngine {
      */
     public AndroidGame() {
         initEngineApplet();
+    }
+
+    public static void main(String[] args) {
+        new AndroidGame(new JGPoint(0, 0));
     }
 
     public void initCanvas() {
@@ -102,7 +102,7 @@ public class AndroidGame extends JGEngine {
         }
         if (levelDone) {
             levelDone = false;
-            new JGTimer(60, true,"InGame") {
+            new JGTimer(60, true, "InGame") {
                 public void alarm() {
                     if (level == lastLevel) {
                         setGameState("EnterHighscore");
@@ -215,6 +215,7 @@ public class AndroidGame extends JGEngine {
     public void doFrameLevelDone() {
         levelDoneState.doFrame();
     }
+
     public void paintFrameLevelDone() {
         levelDoneState.paintFrame();
     }

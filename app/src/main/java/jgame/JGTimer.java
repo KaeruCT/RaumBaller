@@ -16,12 +16,12 @@ import jgame.impl.JGEngineInterface;
  * the frame, the timer removes itself without invoking the alarm.
  */
 public abstract class JGTimer {
-    int frames = 0;
-    double frames_left = 0;
     public boolean running = true;
     public boolean one_shot;
     public JGObject parent_obj = null;
     public String parent_state = null;
+    int frames = 0;
+    double frames_left = 0;
     JGEngineInterface eng;
 
     /**

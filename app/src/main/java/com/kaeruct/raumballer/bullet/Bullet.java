@@ -7,9 +7,9 @@ import jgame.JGObject;
 public abstract class Bullet extends JGObject {
 
     private final double angle;
-    protected int velocity;
     public double damage;
     public int width;
+    protected int velocity;
 
     public Bullet(double x, double y, String anim, int colid, double angle) {
         super("bullet", true, x, y, colid, anim);

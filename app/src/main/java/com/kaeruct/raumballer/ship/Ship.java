@@ -12,20 +12,20 @@ import jgame.JGTimer;
 
 public abstract class Ship extends JGObject {
 
-    protected AndroidGame game;
-    protected double velocity;
-    public ArrayList<Cannon> cannons;
     private static final int flashingTime = 32;
     private final String baseAnimation;
-    protected double angle;
-    private double health;
     private final double maxHealth;
+    public ArrayList<Cannon> cannons;
+    public int width;
+    protected AndroidGame game;
+    protected double velocity;
+    protected double angle;
     protected int flashStart;
     protected String explosionColor;
     protected int clock;
-    public int width;
     protected Ship parent;
     protected boolean sturdy; // don't get hurt at all if hit by ships
+    private double health;
 
     public Ship(double x, double y, String name, int cid, String graphic, double maxHealth, AndroidGame game) {
         super(name, true, x, y, cid, graphic);
@@ -179,5 +179,6 @@ public abstract class Ship extends JGObject {
         this.parent = parent;
     }
 
-    public void onScore(int score) { }
+    public void onScore(int score) {
+    }
 }

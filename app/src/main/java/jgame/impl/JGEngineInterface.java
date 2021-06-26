@@ -149,7 +149,35 @@ public interface JGEngineInterface {
     ////public static final int KeyTab=KeyEvent.VK_TAB;
     /** Keymap equivalent of mouse button. */
     //public static final int KeyMouse1=256, KeyMouse2=257, KeyMouse3=258;
+    /**
+     * Platform-independent cursor.
+     */
+    int NO_CURSOR = -1;
+    /**
+     * Platform-independent cursor.
+     */
+    int DEFAULT_CURSOR = 0;
+    /**
+     * Platform-independent cursor.
+     */
+    int CROSSHAIR_CURSOR = 1;
 
+    /* images */
+
+    // public but not in interface
+    //public ImageUtil imageutil = new ImageUtil(this);
+    /**
+     * Platform-independent cursor.
+     */
+    int HAND_CURSOR = 2;
+    /**
+     * Platform-independent cursor.
+     */
+    int WAIT_CURSOR = 3;
+
+    /** If an image with name already exists, it is removed from memory.
+     * @param imgfile  filespec, loaded as resource
+     */
 
     /**
      * Set progress bar position in the load screen.
@@ -168,17 +196,14 @@ public interface JGEngineInterface {
      */
     void setAuthorMessage(String msg);
 
-    /* images */
-
-    // public but not in interface
-    //public ImageUtil imageutil = new ImageUtil(this);
-
-
     /**
      * Gets (scaled) image directly. Is usually not necessary. Returns
      * null if image is a null image; throws error if image is not defined.
      */
     JGImage getImage(String imgname);
+
+
+    /*====== image from engine ======*/
 
     /**
      * Gets (non-scaled) image's physical size directly.  The object returned
@@ -186,9 +211,6 @@ public interface JGEngineInterface {
      */
     JGPoint getImageSize(String imgname);
 
-    /** If an image with name already exists, it is removed from memory.
-     * @param imgfile  filespec, loaded as resource
-     */
     /**
      * Define new sprite/tile image from a file.  If an image with this
      * id is already defined, it is removed from any caches, so that the old
@@ -250,13 +272,14 @@ public interface JGEngineInterface {
     void defineImageMap(String mapname, String imgfile,
                         int xofs, int yofs, int tilex, int tiley, int skipx, int skipy);
 
+
+
+    /*====== BG/tiles ======*/
+
     /**
      * Gets the collision bounding box of an image.
      */
     JGRectangle getImageBBox(String imgname);
-
-
-    /*====== image from engine ======*/
 
     /**
      * Define new sprite/tile image from a file, with collision bounding box
@@ -306,6 +329,9 @@ public interface JGEngineInterface {
     void defineImage(String imgname, String tilename, int collisionid,
                      String imgmap, int mapidx, String img_op);
 
+
+    /*====== objects from canvas ======*/
+
     /**
      * Load a set of imagemap, image, animation, and audio clip definitions
      * from a file.
@@ -337,11 +363,6 @@ public interface JGEngineInterface {
      **/
     void defineMedia(String filename);
 
-
-
-    /*====== BG/tiles ======*/
-
-
     /**
      * Set image to display behind transparent tiles.  Image size must be a
      * multiple of the tile size. Passing null turns off background image; the
@@ -350,7 +371,6 @@ public interface JGEngineInterface {
      * @param bgimg image name, null=turn off background image
      */
     void setBGImage(String bgimg);
-
 
     /**
      * Set image to display at a particular parallax scroll level.  Only
@@ -367,7 +387,6 @@ public interface JGEngineInterface {
      * @param wrapy image should wrap in y direction
      */
     void setBGImage(int depth, String bgimg, boolean wrapx, boolean wrapy);
-
 
     /**
      * Define background tile settings.  Default is setBGCidSettings("",0,0).
@@ -386,16 +405,12 @@ public interface JGEngineInterface {
      */
     void fillBG(String filltile);
 
-
-    /*====== objects from canvas ======*/
-
     /**
      * Add new object, will become active next frame, do not call directly.
      * This method is normally called automatically by the JGObject
      * constructor.  You should not need to call this directly.
      */
     void markAddObject(JGObject obj);
-
 
     /**
      * Get object if it exists.
@@ -416,11 +431,12 @@ public interface JGEngineInterface {
      */
     void moveObjects(String prefix, int cidmask);
 
+    /* objects from engine */
+
     /**
      * Call the move() methods of all registered objects.
      */
     void moveObjects();
-
 
     /**
      * Calls all colliders of objects that match dstcid that collide with
@@ -453,8 +469,6 @@ public interface JGEngineInterface {
      */
     void checkBGCollision(int tilecid, int objcid);
 
-    /* objects from engine */
-
     /**
      * Query the object list for objects matching the given name prefix, CID
      * mask, and collide with the given bounding box.  If suspended_obj is
@@ -469,6 +483,9 @@ public interface JGEngineInterface {
      */
     Vector getObjects(String prefix, int cidmask, boolean suspended_obj,
                       JGRectangle bbox);
+
+
+    /*====== tiles ======*/
 
     /**
      * Remove one particular object. The actual removal is done after the
@@ -529,9 +546,6 @@ public interface JGEngineInterface {
      */
     int countObjects(String prefix, int cidmask, boolean suspended_obj);
 
-
-    /*====== tiles ======*/
-
     /**
      * Set the cid of a single tile using and and or mask.
      */
@@ -548,6 +562,8 @@ public interface JGEngineInterface {
      * the number of something at the beginning of a game).
      */
     int countTiles(int tilecidmask);
+
+    /* background methods from engine */
 
     /**
      * Get collision id of tile at given tile index position. Moduloes the
@@ -588,8 +604,6 @@ public interface JGEngineInterface {
      * @return true if rectangle exists, false if null
      */
     boolean getTiles(JGRectangle dest, JGRectangle r);
-
-    /* background methods from engine */
 
     /**
      * Draw tile directly on background, do not call this
@@ -640,6 +654,8 @@ public interface JGEngineInterface {
      */
     int getTileCidAtCoord(double x, double y);
 
+    /*====== math ======*/
+
     /**
      * Get the tile cid of the point that is (xofs,yofs) from the tile index
      * coordinate center.
@@ -677,9 +693,6 @@ public interface JGEngineInterface {
      */
     String tileIDToStr(int tileid);
 
-    /*====== math ======*/
-
-
     /**
      * A modulo that moduloes symmetrically, relative to the
      * middle of the view.  That is, the returned x/ypos falls within
@@ -693,7 +706,6 @@ public interface JGEngineInterface {
      * -pfwidth/height_half and pfwidth/height_half of x/yofs_mid
      */
     double moduloYPos(double y);
-
 
     /**
      * Show bounding boxes around the objects: the image bounding box
@@ -749,7 +761,6 @@ public interface JGEngineInterface {
      */
     void dbgSetDebugColor2(JGColor col);
 
-
     /**
      * Print a debug message, with the main program being the source.
      */
@@ -784,7 +795,6 @@ public interface JGEngineInterface {
      * @param msg an exit message, null means none
      */
     void exitEngine(String msg);
-
 
     /**
      * Init engine as component to be embedded in a frame or panel;
@@ -901,6 +911,9 @@ public interface JGEngineInterface {
      */
     int viewWidth();
 
+    //public int viewTileXOfs();
+    //public int viewTileYOfs();
+
     /**
      * Get the virtual height in pixels (not the scaled screen height)
      */
@@ -927,9 +940,6 @@ public interface JGEngineInterface {
      * not inside a frame draw, or the view offset as it is, when we are.
      */
     int viewYOfs();
-
-    //public int viewTileXOfs();
-    //public int viewTileYOfs();
 
     /**
      * Get the virtual width in pixels (not the scaled screen width)
@@ -980,7 +990,6 @@ public interface JGEngineInterface {
      * Get the real display height on this device.
      */
     int displayHeight();
-
 
     /**
      * Override to define your own initialisations before the engine
@@ -1071,6 +1080,23 @@ public interface JGEngineInterface {
     boolean getVideoSyncedUpdate();
 
     /**
+     * Enable/disable video synced update (jogl only).
+     * This method has no effect on non-jogl platforms,
+     * where it is always disabled.  The game state update becomes synced with
+     * the screen refresh rate.  Frame rate is no longer fixed, but depends on
+     * the machine the game is running on.  Gamespeed is set at the beginning
+     * of each frame to compensate for this.  Gamespeed is 1 when actual frame
+     * rate == frame rate set with setFrameRate, less than 1 if frame rate
+     * greater than setFrameRate, more than 1 if frame rate less than
+     * setFrameRate.  There is a hard upper and lower bound for gamespeed, to
+     * ensure it does not attain wild values under rare conditions.  Lower
+     * bound for game speed is determined by a fixed upper bound for the
+     * expected screen refresh rate, 95 hz.  Upper bound for game speed is
+     * determined by the frameskip setting.
+     */
+    void setVideoSyncedUpdate(boolean value);
+
+    /**
      * Change offset of playfield view.  The offset will become active
      * at the next frame draw.  If the view would be out of the
      * playfield's bounds, the offset is corrected so that it is inside them.
@@ -1157,21 +1183,11 @@ public interface JGEngineInterface {
     void setFrameRate(double fps, double maxframeskip);
 
     /**
-     * Enable/disable video synced update (jogl only).
-     * This method has no effect on non-jogl platforms,
-     * where it is always disabled.  The game state update becomes synced with
-     * the screen refresh rate.  Frame rate is no longer fixed, but depends on
-     * the machine the game is running on.  Gamespeed is set at the beginning
-     * of each frame to compensate for this.  Gamespeed is 1 when actual frame
-     * rate == frame rate set with setFrameRate, less than 1 if frame rate
-     * greater than setFrameRate, more than 1 if frame rate less than
-     * setFrameRate.  There is a hard upper and lower bound for gamespeed, to
-     * ensure it does not attain wild values under rare conditions.  Lower
-     * bound for game speed is determined by a fixed upper bound for the
-     * expected screen refresh rate, 95 hz.  Upper bound for game speed is
-     * determined by the frameskip setting.
+     * Get game speed variable.  This can be used if you have other stuff in
+     * your game that is affected by game speed, besides the standard game
+     * speed adaptation done by the engine.
      */
-    void setVideoSyncedUpdate(boolean value);
+    double getGameSpeed();
 
     /**
      * Set game speed variable, default is 1.0.  Game speed affects certain
@@ -1182,13 +1198,6 @@ public interface JGEngineInterface {
      * x/yspeed, and for the default margins of is...Aligned and snapToGrid.
      */
     void setGameSpeed(double speed);
-
-    /**
-     * Get game speed variable.  This can be used if you have other stuff in
-     * your game that is affected by game speed, besides the standard game
-     * speed adaptation done by the engine.
-     */
-    double getGameSpeed();
 
     /**
      * Configure image rendering.  alpha_thresh is used to determine how a
@@ -1224,7 +1233,6 @@ public interface JGEngineInterface {
      */
     int getOffscreenMarginY();
 
-
     /**
      * Set global background colour, which is displayed in borders, and behind
      * transparent tiles if no BGImage is defined.
@@ -1256,27 +1264,6 @@ public interface JGEngineInterface {
      * @param thickness 0 = turn off outline
      */
     void setTextOutline(int thickness, JGColor colour);
-
-    /**
-     * Platform-independent cursor.
-     */
-    int NO_CURSOR = -1;
-    /**
-     * Platform-independent cursor.
-     */
-    int DEFAULT_CURSOR = 0;
-    /**
-     * Platform-independent cursor.
-     */
-    int CROSSHAIR_CURSOR = 1;
-    /**
-     * Platform-independent cursor.
-     */
-    int HAND_CURSOR = 2;
-    /**
-     * Platform-independent cursor.
-     */
-    int WAIT_CURSOR = 3;
 
     /**
      * Set mouse cursor to a platform-independent standard cursor.

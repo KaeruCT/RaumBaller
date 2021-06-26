@@ -10,9 +10,9 @@ import com.kaeruct.raumballer.ship.PlayerShip;
  */
 public class SpaceBall extends EnemyShip {
 
+    private final double radius;
     private boolean lockedOn;
     private double offset;
-    private final double radius;
 
     public SpaceBall(double x, double y, double vel, double angle, AndroidGame game) {
         super(x, y, "spaceball", 5, game);

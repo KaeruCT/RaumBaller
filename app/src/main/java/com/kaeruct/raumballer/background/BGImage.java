@@ -7,10 +7,10 @@ import jgame.JGImage;
 public class BGImage {
 
     private final AndroidGame game;
-    private BGUnit[] sprites;
     private final double width;
     private final double height;
     private final String graphic;
+    private BGUnit[] sprites;
     private double scroll;
 
     public BGImage(String graphic, double scroll, AndroidGame game) {

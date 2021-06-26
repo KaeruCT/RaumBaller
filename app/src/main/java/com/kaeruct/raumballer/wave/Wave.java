@@ -8,13 +8,13 @@ import java.lang.reflect.Constructor;
 
 public abstract class Wave {
 
+    private final LevelReader reader;
+    public boolean stopped;
+    protected AndroidGame game;
     private int freq;
     private int spawned;
     private int maxAmount;
-    private final LevelReader reader;
-    public boolean stopped;
     private String shipClass;
-    protected AndroidGame game;
 
     public Wave(AndroidGame game, LevelReader reader, int maxAmount) {
         this.setFreq(20);

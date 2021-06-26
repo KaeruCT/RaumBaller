@@ -21,64 +21,26 @@ import jgame.JGTimer;
  */
 public class EngineLogic {
 
+    private final Vector timers = new Vector(20, 40);
     public JGImage imageutil;
-
-    Random random;
-
     /**
      * Platform implementation decides if window is resizeable.  Resizeable
      * requires the implementation to keep the original unscaled images in
      * memory.  Turn it off if you are short on memory.
      */
     public boolean is_resizeable = true;
-
-    /**
-     * make_bitmask indicates what to do with transparent images.
-     * true = make bitmask false=make translucent
-     */
-    boolean make_bitmask;
-
-    /**
-     * prescale indicates if: (1) images should be prescaled to screen
-     * resolution or kept at their original size; (2) tiles should be drawn
-     * prescaled. It affects:
-     * scaled_tile*: scaled tile size, or original size
-     * width/height: rounded to whole tile sizes or actual window size
-     * *ofs_scaled: either scaled, or same as *ofs.
-     * Indirectly affected: *_scale_fac canvas_*ofs
-     */
-    boolean prescale;
-
-    public EngineLogic(JGImage imageutil,
-                       boolean make_bitmask, boolean prescale) {
-        this.imageutil = imageutil;
-        this.make_bitmask = make_bitmask;
-        this.prescale = prescale;
-        random = new Random();
-        bg_images.addElement(null);
-    }
-
-
     /**
      * indicates if setCanvasSettings was called.
      */
     public boolean view_initialised = false;
-
     public JGColor fg_color = JGColor.white;
     public JGColor bg_color = JGColor.black;
     public JGFont msg_font = null;
-
     public int outline_thickness = 0;
     public JGColor outline_colour = JGColor.black;
-
-
     public double fps = 35;
     public double maxframeskip = 4.0; /* max # of frames to skip  */
-
     public double gamespeed = 1.00000000001;
-
-    /* game state. These vectors are always reused and not reconstructed. */
-
     /**
      * Engine game state
      */
@@ -92,18 +54,8 @@ public class EngineLogic {
      * start[state] have to be called.
      */
     public Vector gamestate_new = new Vector(10, 20);
-    /**
-     * indicates when engine is inside a parallel object update (moveObjects,
-     * check*Collision)
-     */
 
-
-    boolean in_parallel_upd = false;
-
-
-    private final Vector timers = new Vector(20, 40);
-
-
+    /* game state. These vectors are always reused and not reconstructed. */
     /**
      * signals that JGame globals are set, and exit code should null globals in
      * JGObject
@@ -114,13 +66,6 @@ public class EngineLogic {
      */
     public boolean is_exited = false;
     public String exit_message = "JGEngine exited successfully";
-
-
-    Hashtable animations = new Hashtable();
-
-
-    /* images */
-
     /**
      * Strings -&gt; JGImages, original size,
      * nonexistence means there is no image
@@ -135,7 +80,6 @@ public class EngineLogic {
      * is not cached and needs to be generated from images_orig
      */
     public Hashtable images = new Hashtable();
-
     /**
      * indicates that image is defined even if it has no Image
      */
@@ -146,32 +90,22 @@ public class EngineLogic {
      * is loaded from given filename
      */
     public Hashtable images_loaded = new Hashtable();
+
+
+    /* images */
     /* Integers -> Objects, existence indicates transparency */
     public Hashtable images_tile = new Hashtable(); /* Integers -> Strings */
     public Hashtable images_bbox = new Hashtable(); /* Strings -> Rectangles */
     public Hashtable images_tilecid = new Hashtable(); /* Integers -> Integers */
-
     public Hashtable imagemaps = new Hashtable(); /* Strings->ImageMaps*/
-
     public int alpha_thresh = 128;
     public JGColor render_bg_color = null; // null means use bg_color
-
-
-    /* objects */
-
     /**
      * Note: objects lock is used to synchronise object updating between
      * repaint thread and game thread.  The synchronize functions are found in
      * Engine.doFrameAll and Canvas.paint
      */
     public SortedArray objects = new SortedArray(80);    /* String->JGObject */
-    SortedArray obj_to_remove = new SortedArray(40); /* String */
-    Vector obj_spec_to_remove = new Vector(20, 40); /* (String,Int) */
-    SortedArray obj_to_add = new SortedArray(40); /* JGObject */
-
-
-    /* shared playfield dimensions */
-
     /**
      * Total number of tiles on the playfield. Initially is the same as the
      * nr of tiles on the visible window (viewnrtilesx/y), but can be
@@ -186,15 +120,12 @@ public class EngineLogic {
      * Number of tiles in view (visible window).
      */
     public int viewnrtilesx, viewnrtilesy;
-
-    /* scaling preferences */
-
     public double min_aspect = 3.0 / 4.0, max_aspect = 4.0 / 3.0;
     public int crop_top = 0, crop_left = 0, crop_bottom = 0, crop_right = 0;
+
+
+    /* objects */
     public boolean smooth_magnify = true;
-
-    /* playfield dimensions from canvas*/
-
     /**
      * Actual scaled canvas size; that is, the size of the playfield view,
      * which may be smaller than the desired size of the game window
@@ -210,22 +141,24 @@ public class EngineLogic {
      */
     public int pfwidth, pfheight;
 
+
+    /* shared playfield dimensions */
     /**
      * offset of playfield wrt canvas (may be negative if we crop the
      * playfield).
      */
     public int canvas_xofs = 0, canvas_yofs = 0;
-
     /**
      * Size of one tile, scaled
      */
     public int scaledtilex, scaledtiley;
-
     /**
      * Pending pixel offset of visible view on playfield, to be handled at the
      * next frame draw.
      */
     public int pendingxofs = 0, pendingyofs = 0;
+
+    /* scaling preferences */
     /**
      * Pixel offset of visible view on playfield.
      */
@@ -239,99 +172,98 @@ public class EngineLogic {
      * Derived offset information, useful for scaling.
      */
     public int xofs_scaled = 0, yofs_scaled = 0;
+
+    /* playfield dimensions from canvas*/
     /**
      * Derived offset information, useful for modulo.
      */
     public int xofs_mid, yofs_mid;
-
     /**
      * min_scale_fac is min (scalex,scaley). These are 1.0 until width,
      * height are defined
      */
     public double x_scale_fac = 1.0, y_scale_fac = 1.0, min_scale_fac = 1.0;
-
-
-    /* playfield dimensions from engine */
-
     /**
      * Desired width/height of game window; 0 is not initialised yet. Note
      * that the width/height of the canvas may be a little smaller to
      * accommodate integer-sized scaled tiles.
      */
     public int winwidth = 0, winheight = 0;
-
-
-    /* background */
-
     public int[][] tilemap = null;
     public int[][] tilecidmap = null;
-    //public boolean [] [] tilechangedmap=null;
-
     /**
      * Wrap-around playfield
      */
     public boolean pf_wrapx = false, pf_wrapy = false;
     public int pf_wrapshiftx = 0, pf_wrapshifty = 0;
-
-    public class BGImage {
-        /**
-         * Image name (not tile name) of image to use behind transparent
-         * tiles.
-         */
-        public String imgname;
-        public boolean wrapx, wrapy;
-        public JGPoint tiles;
-        public double xofs = 0, yofs = 0;
-
-        public BGImage(String imgname, boolean wrapx, boolean wrapy) {
-            this.imgname = imgname;
-            this.wrapx = wrapx;
-            this.wrapy = wrapy;
-            tiles = new JGPoint((JGPoint) image_orig_size.get(imgname));
-            tiles.x /= tilex;
-            tiles.y /= tiley;
-        }
-    }
-
     /**
      * BGImages: images to use behind transparent tiles.  Element 0 is always
      * defined.  Null indicates empty image.
      */
     public Vector bg_images = new Vector(8, 20);
-
-    //public String bg_image=null;
-    //public JGPoint bg_image_tiles=null;
-
-    String out_of_bounds_tile = "";
-    int out_of_bounds_cid = 0;
-    int preserve_cids = 0;
-
     public int offscreen_margin_x = 16, offscreen_margin_y = 16;
-
-
     /**
      * the defined state of the physical cells of background, i.e. (0,0) is
      * the top left of background.
      */
     public boolean[][] bg_defined = null;
+    /**
+     * clipid -} filename
+     */
+    public Hashtable audioclips = new Hashtable();
 
 
-    public int viewWidth() {
-        return viewnrtilesx * tilex;
+    /* playfield dimensions from engine */
+    Random random;
+
+
+    /* background */
+    /**
+     * make_bitmask indicates what to do with transparent images.
+     * true = make bitmask false=make translucent
+     */
+    boolean make_bitmask;
+    /**
+     * prescale indicates if: (1) images should be prescaled to screen
+     * resolution or kept at their original size; (2) tiles should be drawn
+     * prescaled. It affects:
+     * scaled_tile*: scaled tile size, or original size
+     * width/height: rounded to whole tile sizes or actual window size
+     * *ofs_scaled: either scaled, or same as *ofs.
+     * Indirectly affected: *_scale_fac canvas_*ofs
+     */
+    boolean prescale;
+    //public boolean [] [] tilechangedmap=null;
+    /**
+     * indicates when engine is inside a parallel object update (moveObjects,
+     * check*Collision)
+     */
+
+
+    boolean in_parallel_upd = false;
+    Hashtable animations = new Hashtable();
+    SortedArray obj_to_remove = new SortedArray(40); /* String */
+    Vector obj_spec_to_remove = new Vector(20, 40); /* (String,Int) */
+
+    //public String bg_image=null;
+    //public JGPoint bg_image_tiles=null;
+    SortedArray obj_to_add = new SortedArray(40); /* JGObject */
+    String out_of_bounds_tile = "";
+    int out_of_bounds_cid = 0;
+    int preserve_cids = 0;
+    JGRectangle tmprect1 = new JGRectangle();
+    JGRectangle tmprect2 = new JGRectangle();
+    JGObject[] srcobj = new JGObject[50];
+    JGObject[] dstobj = new JGObject[50];
+
+    public EngineLogic(JGImage imageutil,
+                       boolean make_bitmask, boolean prescale) {
+        this.imageutil = imageutil;
+        this.make_bitmask = make_bitmask;
+        this.prescale = prescale;
+        random = new Random();
+        bg_images.addElement(null);
     }
-
-    public int viewHeight() {
-        return viewnrtilesy * tiley;
-    }
-
-    public int tileWidth() {
-        return tilex;
-    }
-
-    public int tileHeight() {
-        return tiley;
-    }
-
 
     /**
      * Replacement for stringTokenizer.   str will be split into a Vector of
@@ -378,6 +310,40 @@ public class EngineLogic {
         }
     }
 
+    /**
+     * Split a ';' separated list of words
+     */
+    public static String[] splitList(String liststr) {
+        Vector list = tokenizeString(liststr, ';');
+        String[] list_arr = new String[list.size()];
+        int i = 0;
+        for (Enumeration e = list.elements(); e.hasMoreElements(); ) {
+            list_arr[i] = (String) e.nextElement();
+            i++;
+        }
+        return list_arr;
+    }
+
+
+
+
+    /* images */
+
+    public int viewWidth() {
+        return viewnrtilesx * tilex;
+    }
+
+    public int viewHeight() {
+        return viewnrtilesy * tiley;
+    }
+
+    public int tileWidth() {
+        return tilex;
+    }
+
+    public int tileHeight() {
+        return tiley;
+    }
 
     /**
      * Generate absolute path from relative path by prepending the package
@@ -408,11 +374,6 @@ public class EngineLogic {
             return "/" + pkgname_path + filename;
         }
     }
-
-
-
-
-    /* images */
 
     /**
      * protected
@@ -511,7 +472,6 @@ public class EngineLogic {
         }
     }
 
-
     public void defineMedia(JGEngineInterface eng, String filename) {
         int lnr = 1;
         int nr_lines = 0;
@@ -597,21 +557,6 @@ public class EngineLogic {
     }
 
     /**
-     * Split a ';' separated list of words
-     */
-    public static String[] splitList(String liststr) {
-        Vector list = tokenizeString(liststr, ';');
-        String[] list_arr = new String[list.size()];
-        int i = 0;
-        for (Enumeration e = list.elements(); e.hasMoreElements(); ) {
-            list_arr[i] = (String) e.nextElement();
-            i++;
-        }
-        return list_arr;
-    }
-
-
-    /**
      * Remove all information associated with image, including any cached
      * image data. Does not unload any image maps.  XXX not quite finished;
      * publish this method when finished.
@@ -655,6 +600,9 @@ public class EngineLogic {
         defineImage(name, tilename, collisionid, img,
                 img_op, top, left, width, height);
     }
+
+
+    /*====== image from engine ======*/
 
     /**
      * passing -1 to top,left,width,height indicates these have to be taken
@@ -724,7 +672,6 @@ public class EngineLogic {
                 "-", 0, 0, -1, -1);
     }
 
-
     public void defineImageMap(Object pkg_obj, String mapname, String imgfile,
                                int xofs, int yofs, int tilex, int tiley, int skipx, int skipy) {
         imgfile = getAbsolutePath(pkg_obj, imgfile);
@@ -732,12 +679,14 @@ public class EngineLogic {
                 tilex, tiley, skipx, skipy));
     }
 
+
+
+
+    /*====== PF/view ======*/
+
     public JGRectangle getImageBBox(String imgname) {
         return (JGRectangle) images_bbox.get(imgname);
     }
-
-
-    /*====== image from engine ======*/
 
     public void defineImage(Object pkg_obj, String imgname, String tilename,
                             int collisionid, String imgfile, String img_op) {
@@ -761,8 +710,7 @@ public class EngineLogic {
 
 
 
-
-    /*====== PF/view ======*/
+    /*====== objects from canvas ======*/
 
     /**
      * Offset that should be set on next frame draw. Offset is clipped so the
@@ -840,10 +788,6 @@ public class EngineLogic {
         yofs_mid = yofs + viewnrtilesy * tiley / 2 + pf_wrapshifty;
     }
 
-
-
-    /*====== objects from canvas ======*/
-
     public void markAddObject(JGObject obj) {
         obj_to_add.put(obj.getName(), obj);
     }
@@ -900,6 +844,20 @@ public class EngineLogic {
         obj_spec_to_remove.addElement(new Boolean(suspended_obj));
     }
 
+    ///** Remove objects marked for addition before they can be added.
+    // * Protected.
+    //*/
+    //public void clearAddList() {
+    //	for (int i=0; i<obj_to_add.size; i++) {
+    //		// be sure to mark the object as removed
+    //		((JGObject)obj_to_add.values[i]).removeDone();
+    //	}
+    //	obj_to_add.clear();
+    //}
+
+
+    /* public */
+
     /**
      * Actually remove objects with given spec, including those in obj_to_add
      * list.  Uses obj_to_remove as a temp variable.  If anything is already
@@ -936,7 +894,6 @@ public class EngineLogic {
         }
     }
 
-
     /**
      * protected, remove objects marked for removal.
      */
@@ -964,6 +921,16 @@ public class EngineLogic {
         doRemoveList();
     }
 
+    ///** Remove all objects.  All objects are marked for removal, the add
+    //* list is cleared.  */
+    //void clearObjects() {
+    //	for (Enumeration e=objects.keys(); e.hasMoreElements(); ) {
+    //		markRemoveObject((String)e.nextElement());
+    //	}
+    //	clearAddList();
+    //	//clear_objects=true;
+    //}
+
     /**
      * Actually remove objects in obj_to_remove.
      */
@@ -989,19 +956,7 @@ public class EngineLogic {
         obj_to_add.clear();
     }
 
-    ///** Remove objects marked for addition before they can be added.
-    // * Protected.
-    //*/
-    //public void clearAddList() {
-    //	for (int i=0; i<obj_to_add.size; i++) {
-    //		// be sure to mark the object as removed
-    //		((JGObject)obj_to_add.values[i]).removeDone();
-    //	}
-    //	obj_to_add.clear();
-    //}
-
-
-    /* public */
+    /* reused rectangles, used within collision methods */
 
     public boolean existsObject(String index) {
         return objects.get(index) >= 0;
@@ -1012,16 +967,6 @@ public class EngineLogic {
         if (idx < 0) return null;
         return (JGObject) objects.values[idx];
     }
-
-    ///** Remove all objects.  All objects are marked for removal, the add
-    //* list is cleared.  */
-    //void clearObjects() {
-    //	for (Enumeration e=objects.keys(); e.hasMoreElements(); ) {
-    //		markRemoveObject((String)e.nextElement());
-    //	}
-    //	clearAddList();
-    //	//clear_objects=true;
-    //}
 
     public void moveObjects(JGEngineInterface eng, String prefix, int cidmask) {
         if (in_parallel_upd) throw new JGameError("Recursive call", true);
@@ -1088,18 +1033,9 @@ public class EngineLogic {
         in_parallel_upd = false;
     }
 
-
     public void moveObjects(JGEngineInterface eng) {
         moveObjects(eng, null, 0);
     }
-
-    /* reused rectangles, used within collision methods */
-
-    JGRectangle tmprect1 = new JGRectangle();
-    JGRectangle tmprect2 = new JGRectangle();
-
-    JGObject[] srcobj = new JGObject[50];
-    JGObject[] dstobj = new JGObject[50];
 
     public void checkCollision(JGEngineInterface eng, int srccid, int dstcid) {
         if (in_parallel_upd) throw new JGameError("Recursive call", true);
@@ -2323,11 +2259,6 @@ public class EngineLogic {
     /*=== audio ===*/
 
     /**
-     * clipid -} filename
-     */
-    public Hashtable audioclips = new Hashtable();
-
-    /**
      * Associate given clipid with a filename.  Files are loaded from the
      * resource path.  Java 1.2+ supports at least: midi and wav files.
      */
@@ -2337,6 +2268,26 @@ public class EngineLogic {
         audioclips.put(clipid, filename);
         // XXX we should replace the old clip.
         //replace requires all old audioclip instances to be deleted.
+    }
+
+    public class BGImage {
+        /**
+         * Image name (not tile name) of image to use behind transparent
+         * tiles.
+         */
+        public String imgname;
+        public boolean wrapx, wrapy;
+        public JGPoint tiles;
+        public double xofs = 0, yofs = 0;
+
+        public BGImage(String imgname, boolean wrapx, boolean wrapy) {
+            this.imgname = imgname;
+            this.wrapx = wrapx;
+            this.wrapy = wrapy;
+            tiles = new JGPoint((JGPoint) image_orig_size.get(imgname));
+            tiles.x /= tilex;
+            tiles.y /= tiley;
+        }
     }
 
 

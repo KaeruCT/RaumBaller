@@ -244,60 +244,22 @@ public abstract class StdGame extends JGEngine {
      * Color to use to display background effects behind title and messages
      */
     public JGColor title_bg_color = JGColor.blue;
-
-    /**
-     * indicates that engine has just started and has not produced a single
-     * frame.
-     */
-    boolean just_inited = true;
-
-    /**
-     * Set the status display variables in one go.
-     */
-    public void setStatusDisplay(JGFont status_font, JGColor status_color,
-                                 String lives_img) {
-        this.status_font = status_font;
-        this.status_color = status_color;
-        this.lives_img = lives_img;
-    }
-
-    /**
-     * Set all sequence variables in one go.
-     */
-    public void setSequences(boolean startgame_ingame, int startgame_ticks,
-                             boolean leveldone_ingame, int leveldone_ticks,
-                             boolean lifelost_ingame, int lifelost_ticks,
-                             boolean gameover_ingame, int gameover_ticks) {
-        this.startgame_ingame = startgame_ingame;
-        this.leveldone_ingame = leveldone_ingame;
-        this.lifelost_ingame = lifelost_ingame;
-        this.gameover_ingame = gameover_ingame;
-        this.startgame_ticks = startgame_ticks;
-        this.leveldone_ticks = leveldone_ticks;
-        this.lifelost_ticks = lifelost_ticks;
-        this.gameover_ticks = gameover_ticks;
-    }
-
     /**
      * Highscore table, null (default) means not defined.  Use setHighscores
      * to define the table. If defined, the game will handle highscores by
      * means of the states Highscores and EnterHighscore.
      */
     public Highscore[] highscores = null;
-
     /**
      * Maximum length of name typed by user.
      */
     public int highscore_maxnamelen = 15;
-
     /**
      * Player's name being entered in EnterHighscore; is reset to the empty
      * string before the EnterHighscore state is entered.  Is altered by
      * doFrameEnterHighscore.
      */
     public String playername = "";
-
-
     /**
      * Time to wait in title screen before showing highscores.
      */
@@ -330,17 +292,129 @@ public abstract class StdGame extends JGEngine {
      * String to display above highscore entry screen.
      */
     public String highscore_entry = "You have a high score!";
-
-
+    /**
+     * indicates that engine has just started and has not produced a single
+     * frame.
+     */
+    boolean just_inited = true;
+    double[] accelzerovector = new double[]{0, 0, 1};
+    // only regenerate strings to display if the variables changed.
+    // toString and concatenation take a lot of time.
+    String scorestr = "", livesstr = "";
+    int oldscore = -1, oldlives = -1;
     private YesNoDialog sound_dialog;
 
-
-    class YesNoDialog {
-        public boolean selection;
-        public boolean selected;
+    /**
+     * Normal of two vectors given by three points, namely, P2-P1 and P1-P0
+     * (P1 can be considered the origin).
+     * Vector is not normalised!
+     */
+    static double[] getNormal(double[][] p) {
+        return new double[]{
+                (p[2][1] - p[1][1]) * (p[1][2] - p[0][2])
+                        - (p[2][2] - p[1][2]) * (p[1][1] - p[0][1]),
+                (p[2][2] - p[1][2]) * (p[1][0] - p[0][0])
+                        - (p[2][0] - p[1][0]) * (p[1][2] - p[0][2]),
+                (p[2][0] - p[1][0]) * (p[1][1] - p[0][1])
+                        - (p[2][1] - p[1][1]) * (p[1][0] - p[0][0])};
     }
 
-    double[] accelzerovector = new double[]{0, 0, 1};
+    /**
+     * get angle between vector and (0,0,1)
+     */
+    static double atan3(double[] p) {
+        double len = length3(p);
+        if (len == 0) return 0;
+        return Math.acos(p[2] / len);
+    }
+
+    /**
+     * get angle between two vectors
+     * http://www.mcasco.com/qa_ab3dv.html
+     */
+    public static double atan3(double[] p1, double[] p2) {
+        double lenprod = length3(p1) * length3(p2);
+        if (lenprod == 0) return 0;
+        double dotprod = p1[0] * p2[0] + p1[1] * p2[1] + p1[2] * p2[2];
+        return Math.acos(dotprod / lenprod);
+    }
+
+    // 3D functions from vesselviewer.Math3D
+
+    /**
+     * Get rotate matrix openGL style (vector + angle)
+     */
+    static double[][] getRotateMatrix3x3(double ang, double x, double y, double z) {
+        double[][] m = new double[3][3];
+        double norm = Math.sqrt(x * x + y * y + z * z);
+        x /= norm;
+        y /= norm;
+        z /= norm;
+        double c = Math.cos(ang);
+        double s = Math.sin(ang);
+        // see http://pyopengl.sourceforge.net/documentation/manual/glRotate.3G.html
+        m[0][0] = x * x * (1 - c) + c;
+        m[0][1] = x * y * (1 - c) - z * s;
+        m[0][2] = x * z * (1 - c) + y * s;
+
+        m[1][0] = y * x * (1 - c) + z * s;
+        m[1][1] = y * y * (1 - c) + c;
+        m[1][2] = y * z * (1 - c) - x * s;
+
+        m[2][0] = x * z * (1 - c) - y * s;
+        m[2][1] = y * z * (1 - c) + x * s;
+        m[2][2] = z * z * (1 - c) + c;
+        return m;
+    }
+
+    // unused
+
+    public static double length3(double[] p) {
+        return Math.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+    }
+
+    /**
+     * multiply vector by rotation matrix
+     */
+    static double[] rotateVector(double[] vec, double[][] m) {
+        double[] rot = new double[3];
+        rot[0] = m[0][0] * vec[0] + m[0][1] * vec[1] + m[0][2] * vec[2];
+        rot[1] = m[1][0] * vec[0] + m[1][1] * vec[1] + m[1][2] * vec[2];
+        rot[2] = m[2][0] * vec[0] + m[2][1] * vec[1] + m[2][2] * vec[2];
+        return rot;
+    }
+
+    public static JGPoint parseSizeArgs(String[] args, int arg_ofs) {
+        // dummy implementation
+        return null;
+    }
+
+    /**
+     * Set the status display variables in one go.
+     */
+    public void setStatusDisplay(JGFont status_font, JGColor status_color,
+                                 String lives_img) {
+        this.status_font = status_font;
+        this.status_color = status_color;
+        this.lives_img = lives_img;
+    }
+
+    /**
+     * Set all sequence variables in one go.
+     */
+    public void setSequences(boolean startgame_ingame, int startgame_ticks,
+                             boolean leveldone_ingame, int leveldone_ticks,
+                             boolean lifelost_ingame, int lifelost_ticks,
+                             boolean gameover_ingame, int gameover_ticks) {
+        this.startgame_ingame = startgame_ingame;
+        this.leveldone_ingame = leveldone_ingame;
+        this.lifelost_ingame = lifelost_ingame;
+        this.gameover_ingame = gameover_ingame;
+        this.startgame_ticks = startgame_ticks;
+        this.leveldone_ticks = leveldone_ticks;
+        this.lifelost_ticks = lifelost_ticks;
+        this.gameover_ticks = gameover_ticks;
+    }
 
     /**
      * get accelerometer zero vector
@@ -373,87 +447,6 @@ public abstract class StdGame extends JGEngine {
         return rotateVector(ret, rotm);
     }
 
-    // 3D functions from vesselviewer.Math3D
-
-    /**
-     * Normal of two vectors given by three points, namely, P2-P1 and P1-P0
-     * (P1 can be considered the origin).
-     * Vector is not normalised!
-     */
-    static double[] getNormal(double[][] p) {
-        return new double[]{
-                (p[2][1] - p[1][1]) * (p[1][2] - p[0][2])
-                        - (p[2][2] - p[1][2]) * (p[1][1] - p[0][1]),
-                (p[2][2] - p[1][2]) * (p[1][0] - p[0][0])
-                        - (p[2][0] - p[1][0]) * (p[1][2] - p[0][2]),
-                (p[2][0] - p[1][0]) * (p[1][1] - p[0][1])
-                        - (p[2][1] - p[1][1]) * (p[1][0] - p[0][0])};
-    }
-
-    // unused
-
-    /**
-     * get angle between vector and (0,0,1)
-     */
-    static double atan3(double[] p) {
-        double len = length3(p);
-        if (len == 0) return 0;
-        return Math.acos(p[2] / len);
-    }
-
-    /**
-     * get angle between two vectors
-     * http://www.mcasco.com/qa_ab3dv.html
-     */
-    public static double atan3(double[] p1, double[] p2) {
-        double lenprod = length3(p1) * length3(p2);
-        if (lenprod == 0) return 0;
-        double dotprod = p1[0] * p2[0] + p1[1] * p2[1] + p1[2] * p2[2];
-        return Math.acos(dotprod / lenprod);
-    }
-
-    /**
-     * Get rotate matrix openGL style (vector + angle)
-     */
-    static double[][] getRotateMatrix3x3(double ang, double x, double y, double z) {
-        double[][] m = new double[3][3];
-        double norm = Math.sqrt(x * x + y * y + z * z);
-        x /= norm;
-        y /= norm;
-        z /= norm;
-        double c = Math.cos(ang);
-        double s = Math.sin(ang);
-        // see http://pyopengl.sourceforge.net/documentation/manual/glRotate.3G.html
-        m[0][0] = x * x * (1 - c) + c;
-        m[0][1] = x * y * (1 - c) - z * s;
-        m[0][2] = x * z * (1 - c) + y * s;
-
-        m[1][0] = y * x * (1 - c) + z * s;
-        m[1][1] = y * y * (1 - c) + c;
-        m[1][2] = y * z * (1 - c) - x * s;
-
-        m[2][0] = x * z * (1 - c) - y * s;
-        m[2][1] = y * z * (1 - c) + x * s;
-        m[2][2] = z * z * (1 - c) + c;
-        return m;
-    }
-
-    public static double length3(double[] p) {
-        return Math.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
-    }
-
-    /**
-     * multiply vector by rotation matrix
-     */
-    static double[] rotateVector(double[] vec, double[][] m) {
-        double[] rot = new double[3];
-        rot[0] = m[0][0] * vec[0] + m[0][1] * vec[1] + m[0][2] * vec[2];
-        rot[1] = m[1][0] * vec[0] + m[1][1] * vec[1] + m[1][2] * vec[2];
-        rot[2] = m[2][0] * vec[0] + m[2][1] * vec[1] + m[2][2] * vec[2];
-        return rot;
-    }
-
-
     /**
      * Define highscore table.
      */
@@ -465,6 +458,12 @@ public abstract class StdGame extends JGEngine {
             highscores[i] = default_hisc;
         highscore_maxnamelen = maxnamelen;
     }
+
+    /* special state functions */
+
+    /** Initialise the game when a new game is started.  Default sets level,
+     * stage, score to 0, and lives to initial_lives. */
+    //public void initNewGame() { initNewGame(0); }
 
     /**
      * Set highscore display settings.
@@ -480,17 +479,6 @@ public abstract class StdGame extends JGEngine {
         highscore_title_font = titlefont;
         highscore_title_color = titlecolor;
     }
-
-    public static JGPoint parseSizeArgs(String[] args, int arg_ofs) {
-        // dummy implementation
-        return null;
-    }
-
-    /* special state functions */
-
-    /** Initialise the game when a new game is started.  Default sets level,
-     * stage, score to 0, and lives to initial_lives. */
-    //public void initNewGame() { initNewGame(0); }
 
     /**
      * Initialise the game when a new game is started.  Default sets
@@ -544,6 +532,8 @@ public abstract class StdGame extends JGEngine {
         startGame(0);
     }
 
+    /* state transition functions */
+
     /**
      * Start game at given level
      */
@@ -568,8 +558,6 @@ public abstract class StdGame extends JGEngine {
             setGameState("InGame");
         }
     }
-
-    /* state transition functions */
 
     /**
      * Call to make state transition to LifeLost.  Is ignored when in
@@ -708,6 +696,8 @@ public abstract class StdGame extends JGEngine {
         }
     }
 
+    /* initAppConfig not implemented */
+
     /**
      * Go to title or to highscore entry screen.
      */
@@ -723,7 +713,7 @@ public abstract class StdGame extends JGEngine {
         //}
     }
 
-    /* initAppConfig not implemented */
+    /* default doFrame... actions; note we still have to define the others.*/
 
     /**
      * The main doFrame takes care of all the standard game actions.  If you
@@ -834,7 +824,8 @@ public abstract class StdGame extends JGEngine {
         }
     }
 
-    /* default doFrame... actions; note we still have to define the others.*/
+
+    /* default start... functions */
 
     /**
      * Default lets user type name into the variable playername.  If enter is
@@ -860,9 +851,6 @@ public abstract class StdGame extends JGEngine {
 			playername += key;
 		*/
     }
-
-
-    /* default start... functions */
 
     /**
      * Initialise the title screen.  This is a standard state transition
@@ -921,6 +909,7 @@ public abstract class StdGame extends JGEngine {
      */
     public void startGameOver() {
     }
+    /* default paint functions */
 
     /**
      * Initialise enter-highscore screen.  This is a standard state
@@ -931,12 +920,6 @@ public abstract class StdGame extends JGEngine {
         clearLastKey();
         playername = "";
     }
-    /* default paint functions */
-
-    // only regenerate strings to display if the variables changed.
-    // toString and concatenation take a lot of time.
-    String scorestr = "", livesstr = "";
-    int oldscore = -1, oldlives = -1;
 
     /**
      * Default paintFrame displays score at top left, lives at top right.
@@ -1070,8 +1053,6 @@ public abstract class StdGame extends JGEngine {
         }
     }
 
-    /* handy game functions */
-
     /**
      * Returns true every increment ticks, but only when gametime is between
      * min_time and max_time.
@@ -1081,14 +1062,14 @@ public abstract class StdGame extends JGEngine {
                 && (((int) gametime - 1) % increment) < (int) getGameSpeed();
     }
 
+    /* handy game functions */
+
     /**
      * Returns true every increment ticks.
      */
     public boolean checkTime(int increment) {
         return (((int) gametime - 1) % increment) < (int) getGameSpeed();
     }
-
-    /* handy draw and effects functions */
 
     /**
      * Draw a row of objects to indicate the value count.  This is typically
@@ -1099,6 +1080,8 @@ public abstract class StdGame extends JGEngine {
         for (int i = 0; i < count; i++)
             drawImage(x + i * increment_x, y, image, false);
     }
+
+    /* handy draw and effects functions */
 
     /**
      * Draw a string with letters that move up and down individually.
@@ -1120,13 +1103,6 @@ public abstract class StdGame extends JGEngine {
                     ), 0);
     }
 
-    /** Draw a String that zooms in and out. Alignment is always center. Note
-     * that tmr = 0 will start the font zooming in. */
-    //public void drawZoomString(String s,int x,int y,
-    //int tmr, double min_size_fac, double speed, Font font, JGColor col) {
-    //	drawString(s,x,y,0,zoomed,col);
-    //}
-
     /**
      * Get font for zooming text in and out. Note that tmr = 0 will start
      * the font zooming in from the farthest position.
@@ -1136,6 +1112,13 @@ public abstract class StdGame extends JGEngine {
         // dummy implementation
         return basejgfont;
     }
+
+    /** Draw a String that zooms in and out. Alignment is always center. Note
+     * that tmr = 0 will start the font zooming in. */
+    //public void drawZoomString(String s,int x,int y,
+    //int tmr, double min_size_fac, double speed, Font font, JGColor col) {
+    //	drawString(s,x,y,0,zoomed,col);
+    //}
 
     /**
      * Get a colour from a colour cycle.
@@ -1162,5 +1145,10 @@ public abstract class StdGame extends JGEngine {
         } else {
             return end_pos;
         }
+    }
+
+    class YesNoDialog {
+        public boolean selection;
+        public boolean selected;
     }
 }

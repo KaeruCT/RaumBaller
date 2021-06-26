@@ -3,7 +3,6 @@ package com.kaeruct.raumballer.ship.enemy;
 import com.kaeruct.raumballer.AndroidGame;
 import com.kaeruct.raumballer.cannon.BitWaveCannon;
 import com.kaeruct.raumballer.cannon.PlasmaCannon;
-import com.kaeruct.raumballer.cannon.SoloPlasmaCannon;
 import com.kaeruct.raumballer.cannon.TripleFireCannon;
 import com.kaeruct.raumballer.ship.EnemyShip;
 

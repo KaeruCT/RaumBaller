@@ -4,6 +4,7 @@ import com.kaeruct.raumballer.AndroidGame;
 
 public abstract class GameState {
     protected AndroidGame game;
+
     public GameState(AndroidGame game) {
         this.game = game;
     }

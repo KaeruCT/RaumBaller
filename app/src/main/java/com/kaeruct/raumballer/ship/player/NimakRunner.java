@@ -20,7 +20,7 @@ public class NimakRunner extends PlayerShip {
         this.width = 16;
         this.cannonPrototypes[0] = new DiscCannon();
         this.cannonPrototypes[1] = new CombinedCannon(new Cannon[]{
-            new DiscCannon(), new FireCannon()
+                new DiscCannon(), new FireCannon()
         });
         this.cannonPrototypes[2] = new TripleFireCannon();
         this.cannonPrototypes[3] = new CombinedCannon(new Cannon[]{

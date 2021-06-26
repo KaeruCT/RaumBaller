@@ -8,11 +8,11 @@ import com.kaeruct.raumballer.ship.EnemyShip;
  */
 public class Asterisk extends EnemyShip {
 
-    private double offset;
     public double radius;
     public double speed = 0.01;
     public boolean wavy = false;
     public boolean odd = false;
+    private double offset;
 
     public Asterisk(double x, double y, double vel, double angle, AndroidGame game) {
         super(x, y, "asterisk", 5, game);
@@ -30,8 +30,8 @@ public class Asterisk extends EnemyShip {
     public void move() {
         super.move();
 
-        x = parent.x + parent.getImageBBoxConst().width/2 - Math.cos(-offset) * radius - this.getImageBBox().width/2;
-        y = parent.y + parent.getImageBBoxConst().height/2 - Math.sin(offset) * radius - this.getImageBBox().height/2;
+        x = parent.x + parent.getImageBBoxConst().width / 2 - Math.cos(-offset) * radius - this.getImageBBox().width / 2;
+        y = parent.y + parent.getImageBBoxConst().height / 2 - Math.sin(offset) * radius - this.getImageBBox().height / 2;
 
         if (wavy) {
             radius += odd ? Math.sin(clock * 0.08) : Math.cos(clock * 0.08);

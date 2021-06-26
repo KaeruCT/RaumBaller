@@ -13,18 +13,26 @@ public class SeekBarPreference extends DialogPreference
         implements SeekBar.OnSeekBarChangeListener {
     //private static final String androidns="http://schemas.android.com/apk/res/android";
 
-    private SeekBar mSeekBar;
-    private TextView mSplashText, mValueText;
     private final Context mContext;
-
-    private String mDialogMessage = "mDialogMessage";
     private final String suffix = "";
-    private int intmax, intstep;
-    private double value;
     private final double defaultvalue = 0; // should not be necessary
     private final NumberSetting param;
+    private SeekBar mSeekBar;
+    private TextView mSplashText, mValueText;
+    private String mDialogMessage = "mDialogMessage";
+    private int intmax, intstep;
+    private double value;
     //public int decimals;
     //public double lower,upper, step;
+
+    public SeekBarPreference(Context context, NumberSetting param) {
+        super(context, null);
+        mContext = context;
+        this.param = param;
+        this.mDialogMessage = param.title;
+        // XXX suffix not passed, so unused as yet
+        setPersistent(true);
+    }
 
     private void calcSeekBarParam() {
         intstep = (int) Math.round(param.step * Math.pow(10, param.decimals));
@@ -37,15 +45,6 @@ public class SeekBarPreference extends DialogPreference
 
     private float convertToFloat(int val) {
         return (float) (param.lower + val / (Math.pow(10, param.decimals)));
-    }
-
-    public SeekBarPreference(Context context, NumberSetting param) {
-        super(context, null);
-        mContext = context;
-        this.param = param;
-        this.mDialogMessage = param.title;
-        // XXX suffix not passed, so unused as yet
-        setPersistent(true);
     }
 
     /*public SeekBarPreference(Context context, AttributeSet attrs) {

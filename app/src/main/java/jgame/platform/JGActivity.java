@@ -14,24 +14,16 @@ import android.view.MenuItem;
 
 public class JGActivity extends Activity {
 
+    public static final int SOUNDDIALOG = 0;
+    public static final int ACCELDIALOG = 1;
+    static final int MAINGROUP = Menu.FIRST;
+    static final int RESUME = Menu.FIRST;
+    static final int QUITGAME = Menu.FIRST + 1;
+    static final int SETACCEL = Menu.FIRST + 2;
+    static final int SETTINGS = Menu.FIRST + 3;
+    static final int SETTINGS_SUBMENU = Menu.FIRST + 4;
+    private static final int REQUEST_CODE_PREFERENCES = 1;
     JGEngine eng;
-
-    class UrlInvoker implements Runnable {
-        String url;
-
-        public UrlInvoker(String url) {
-            this.url = url;
-        }
-
-        public void run() {
-            // XXX currently resets the application state
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            i.setData(Uri.parse(url));
-            startActivity(i);
-        }
-    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,9 +51,6 @@ public class JGActivity extends Activity {
         eng.stop();
         eng.sensormanager.unregisterListener(eng.canvas);
     }
-
-    public static final int SOUNDDIALOG = 0;
-    public static final int ACCELDIALOG = 1;
 
     protected Dialog onCreateDialog(int id) {
         //if (eng==null || !(eng instanceof StdGame)) return null;
@@ -102,16 +91,6 @@ public class JGActivity extends Activity {
             return alert;
         }
     }
-
-    static final int MAINGROUP = Menu.FIRST;
-
-    static final int RESUME = Menu.FIRST;
-    static final int QUITGAME = Menu.FIRST + 1;
-    static final int SETACCEL = Menu.FIRST + 2;
-    static final int SETTINGS = Menu.FIRST + 3;
-    static final int SETTINGS_SUBMENU = Menu.FIRST + 4;
-
-    private static final int REQUEST_CODE_PREFERENCES = 1;
 
     // standard menu
     @Override
@@ -171,7 +150,6 @@ public class JGActivity extends Activity {
         return true;
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
@@ -184,6 +162,12 @@ public class JGActivity extends Activity {
         }
     }
 
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        eng.stop();
+        return true;
+    }
+
 //    private void updateCounterText() {
 //        // Since we're in the same package, we can use this context to get
 //        // the default shared preferences
@@ -192,16 +176,25 @@ public class JGActivity extends Activity {
 //        mCounterText.setText(getString(R.string.counter_value_is) + " " + counter);
 //   }
 
-
-    @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        eng.stop();
-        return true;
-    }
-
     @Override
     public void onOptionsMenuClosed(Menu menu) {
         eng.start();
+    }
+
+    class UrlInvoker implements Runnable {
+        String url;
+
+        public UrlInvoker(String url) {
+            this.url = url;
+        }
+
+        public void run() {
+            // XXX currently resets the application state
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.setData(Uri.parse(url));
+            startActivity(i);
+        }
     }
 }
 

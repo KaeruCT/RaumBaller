@@ -28,7 +28,7 @@ public class BobbaWave extends Wave {
         for (int i = 0; i < num; i++) {
             double ang = Math.PI * (2 * (num / 2 - i) / num);
 
-            Asterisk a = (Asterisk)super.spawn(
+            Asterisk a = (Asterisk) super.spawn(
                     parent.x,
                     parent.y,
                     0.8,
