@@ -1,0 +1,12 @@
+RaumBaller is an old-school scrolling shoot 'em up game.
+
+You control your spaceship by tapping on the screen.
+
+There are three different available spaceships to choose from, each with their own strengths and
+weaknesses.
+
+Your spaceship will shoot automatically, so all you need to focus is on staying alive as long as
+possible by avoiding the baddies that want to destroy your ship.
+
+The more enemies you kill, the more your score will go up, and the cannons of your chosen spaceship
+will be upgraded automatically.

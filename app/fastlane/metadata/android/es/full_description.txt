@@ -1,0 +1,12 @@
+RaumBaller es un juego de naves y disparos en estilo retro
+
+La nave espacial se controla tocando la pantalla.
+
+Hay tres naves espaciales diferentes disponibles para elegir, cada una con sus propias debilidades y
+fortalezas.
+
+La nave espacial disparará automáticamente, por lo que solo hay que concentrarse en mantenerla con
+vida mientras se evita a los enemigos que quieren destruir la nave.
+
+Cuantos más enemigos sean destruidos, más aumentará la puntuación y los cañones de la nave espacial
+recibirán mejoras automaticámente.
