@@ -26,15 +26,9 @@ others to enjoy.
 
 # Screenshots
 
-![title screen](./fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg)
-
-![gameplay 1](./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg)
-
-![gameplay 2](./fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg)
-
-![gameplay 3](./fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg)
-
-![game over](./fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg)
+<img alt="title" src="/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="300"/> <img alt="gameplay 1" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="300"/>
+<img alt="gameplay 2" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="300"/> <img alt="gameplay 3" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="300"/>
+<img alt="game over" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="300"/>
 
 # Music
 
