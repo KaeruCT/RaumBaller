@@ -122,7 +122,7 @@ public abstract class Ship extends JGObject {
             };
         }
 
-        game.playAudio("explode");
+        game.playAudio("shooting", "explode", false);
 
         remove();
     }

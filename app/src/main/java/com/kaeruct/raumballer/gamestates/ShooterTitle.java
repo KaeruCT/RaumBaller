@@ -20,6 +20,7 @@ public class ShooterTitle extends GameState {
     }
 
     public void start() {
+        game.playAudio("state", "start", true);
         game.score = 0;
         game.level = 0;
         game.removeObjects("", 0);
@@ -36,7 +37,9 @@ public class ShooterTitle extends GameState {
         if (game.getMouseButton(1)) {
             JGRectangle mouseRect = new JGRectangle(game.getMouseX(), game.getMouseY(), 1, 1);
             for (int i = 0; i < ships.size(); i++) {
+                // find out which ship was tapped and use it as the player ship
                 if (ships.get(i).getBBox().intersects(mouseRect)) {
+                    game.stopAudio("state");
                     game.selectedShip = i;
                     game.removeObjects("select-", 0);
                     game.setGameState("InGame");

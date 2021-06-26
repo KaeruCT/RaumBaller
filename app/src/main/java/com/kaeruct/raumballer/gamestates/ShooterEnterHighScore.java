@@ -9,6 +9,7 @@ public class ShooterEnterHighScore extends GameState {
 
     public void start() {
         game.startGeneral();
+        game.playAudio("state", "success", false);
     }
 
     public void doFrame() {
@@ -23,10 +24,10 @@ public class ShooterEnterHighScore extends GameState {
         int centerX = game.viewWidth() / 2;
         game.getPlayer().setPos(centerX, centerY);
 
-        game.drawString("YOU ARE WINNER" + game.score, centerX, centerY - 48, 0, "blue");
-        game.drawString("Y~U ~R~ W~N~E~" + game.score, centerX, centerY - 48, 0, "yellow");
+        game.drawString("YOU ARE WINNER", centerX, centerY - 48, 0, "blue");
+        game.drawString("Y~U~~R~~W~N~E~", centerX, centerY - 48, 0, "yellow");
         game.drawString("Your score was: " + game.score, centerX, centerY - 32, 0, "blue");
-        game.drawString("~~~~~~~~~~~~~~~~" + game.score, centerX, centerY - 32, 0, "white");
+        game.drawString("~~~~~~~~~~~~~~~~" + game.score, centerX, centerY - 32, 0, "yellow");
         game.drawString("TAP to restart!", centerX, centerY + 32, 0, "blue");
         game.drawString("TAP~~~~~~~~~~~~", centerX, centerY + 32, 0, "yellow");
         game.drawString("Maybe try another ship?", centerX, centerY + 48, 0, "blue");

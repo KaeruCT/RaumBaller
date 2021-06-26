@@ -12,7 +12,7 @@ import com.kaeruct.raumballer.ship.PlayerShip;
 public class NimakRunner extends PlayerShip {
 
     public NimakRunner(int x, int y, AndroidGame game) {
-        super(x, y, "player2", 80, game);
+        super(x, y, "player2", 120, game);
         this.velocity = 1.8;
         this.drag = 0.3;
         this.acc = 0.1;

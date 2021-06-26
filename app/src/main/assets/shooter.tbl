@@ -2,9 +2,12 @@
 // Lines without tabs (such as these) are ignored, and can be used as comments.
 // Some fields (names, filenames) may contain spaces.
 
-// define a sound
+// define sounds
 laser	sound/laser.wav
 explode	sound/explosion.wav
+start	sound/start.wav
+success	sound/success_jingle.wav
+fail	sound/fail_jingle.wav
 
 // define image to display as background
 starbg	img/starbg1.png					0	0	128	128	0	0

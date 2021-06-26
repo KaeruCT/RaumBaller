@@ -25,7 +25,7 @@ public abstract class PlayerShip extends Ship {
         // shooting
         shoot();
         if (clock % 6 == 0) {
-            game.playAudio("laser");
+            game.playAudio("shooting", "laser", false);
         }
 
         double xacc = 0;

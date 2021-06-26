@@ -9,6 +9,7 @@ public class ShooterLevelDone extends GameState {
 
     public void start() {
         game.startGeneral();
+        game.playAudio("state", "success", false);
     }
 
     public void doFrame() {

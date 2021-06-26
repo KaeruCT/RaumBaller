@@ -18,6 +18,7 @@ public class ShooterGameOver extends GameState {
 
     public void start() {
         game.startGeneral();
+        game.playAudio("state", "fail", false);
 
         game.removeObjects("", 0);
         // show selected ship in game over screen
