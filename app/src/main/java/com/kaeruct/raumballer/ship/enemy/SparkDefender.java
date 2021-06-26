@@ -4,6 +4,9 @@ import com.kaeruct.raumballer.AndroidGame;
 import com.kaeruct.raumballer.cannon.SparkCannon;
 import com.kaeruct.raumballer.ship.EnemyShip;
 
+/**
+ * Basic quick ship which attempts to stay inside the screen as long as possible
+ */
 public class SparkDefender extends EnemyShip {
 
     public SparkDefender(double x, double y, double vel, double angle, AndroidGame game) {

@@ -3,6 +3,7 @@ package com.kaeruct.raumballer.wave;
 import com.kaeruct.raumballer.AndroidGame;
 import com.kaeruct.raumballer.LevelReader;
 import com.kaeruct.raumballer.ship.Ship;
+import com.kaeruct.raumballer.ship.enemy.Asterisk;
 
 public class SparkEyeWave extends Wave {
 
@@ -33,10 +34,10 @@ public class SparkEyeWave extends Wave {
 
         double num = 7; // number of asterisks around the eye
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < num; i++) {
             double ang = Math.PI * (2 * (num / 2 - i) / num);
 
-            super.spawn(
+            Asterisk a = (Asterisk)super.spawn(
                     xpos,
                     ypos,
                     6,
@@ -44,6 +45,7 @@ public class SparkEyeWave extends Wave {
                     "Asterisk",
                     parent
             );
+            a.speed = 0.07;
         }
     }
 

@@ -15,7 +15,7 @@ public class PlasmaCannon extends Cannon {
             new PlasmaBullet(x, y, colid, angle);
             new PlasmaBullet(x - 2, y - 4, colid, angle);
             new PlasmaBullet(x + 2, y - 4, colid, angle);
-            //game.playAudio("shoot");
+
         }
     }
 }

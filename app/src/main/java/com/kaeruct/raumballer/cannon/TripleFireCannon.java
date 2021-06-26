@@ -15,7 +15,7 @@ public class TripleFireCannon extends Cannon {
             new FireBullet(x, y, colid, angle);
             new FireBullet(x, y, colid, angle + 0.1);
             new FireBullet(x, y, colid, angle - 0.1);
-            //game.playAudio("shoot");
+
         }
     }
 }

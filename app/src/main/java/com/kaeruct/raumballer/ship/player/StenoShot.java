@@ -15,6 +15,7 @@ public class StenoShot extends PlayerShip {
         super(x, y, "player1", 70, game);
         this.velocity = 3.0;
         this.acc = 0.2;
+        this.drag = 0.1;
         this.explosionColor = "green";
         this.width = 16;
         this.cannonPrototypes[0] = new DiscCannon();

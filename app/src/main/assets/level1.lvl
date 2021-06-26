@@ -1,7 +1,5 @@
-FireFormationWave 6 + SpaceBallWave 3
-FireFormationWave 5 + SparkWave 3
-FireFormationWave 5 + SpaceBallWave 1
-CibumWave 1 + SpaceBallWave 3
-SparkWave 10 + FireFormationWave 10 + SpaceBallWave 3
-SparkEyeWave 5
-CibumWave 3 + FireFormationWave 5
+SparkWave 3
+FireFormationWave 2
+SparkWave 5
+FireFormationWave 5
+SpaceBallWave 3 + SparkEyeWave 1

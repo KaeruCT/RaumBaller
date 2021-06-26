@@ -93,6 +93,14 @@ cibum_flash2		-	0	cibum_sheet		3	-
 cibum_flash3		-	0	cibum_sheet		4	-
 cibum_flash4		-	0	cibum_sheet		5	-
 
+bobba_sheet		img/bobba.png	0	0	64	60	0	0
+bobba_1				-	0	bobba_sheet		0	-
+bobba_2				-	0	bobba_sheet		1	-
+bobba_flash1		-	0	bobba_sheet		2	-
+bobba_flash2		-	0	bobba_sheet		3	-
+bobba_flash3		-	0	bobba_sheet		4	-
+bobba_flash4		-	0	bobba_sheet		5	-
+
 sparkdefender		enemy1_1						0		false
 firestriker			enemy2_1						0		false
 sparkdefender_flash	enemy1_2;enemy1_3;enemy1_4		5		true
@@ -113,6 +121,9 @@ player3_flash		player3_2;player3_3;player3_4	5		true
 
 cibumdestroyer			cibum_1;cibum_2					0.3		true
 cibumdestroyer_flash	cibum_flash1;cibum_flash2;cibum_flash3;cibum_flash4	5		true
+
+bobbadestroyer			bobba_1;bobba_2					0.3		true
+bobbadestroyer_flash	bobba_flash1;bobba_flash2;bobba_flash3;bobba_flash4	5		true
 
 star_sheet			img/bgstars.png	0	0	8	8	0	0
 bgstar_1			-	0	star_sheet	0	-

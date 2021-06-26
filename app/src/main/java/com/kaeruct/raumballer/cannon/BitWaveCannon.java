@@ -16,7 +16,7 @@ public class BitWaveCannon extends Cannon {
             new BitBullet(x, y, colid, angle - v);
             new BitBullet(x, y, colid, angle + v);
 
-            //game.playAudio("shoot");
+
         }
     }
 }

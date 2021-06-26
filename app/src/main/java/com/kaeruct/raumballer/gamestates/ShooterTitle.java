@@ -1,4 +1,6 @@
-package com.kaeruct.raumballer;
+package com.kaeruct.raumballer.gamestates;
+
+import com.kaeruct.raumballer.AndroidGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,21 +8,21 @@ import java.util.List;
 import jgame.JGObject;
 import jgame.JGRectangle;
 
-public class ShooterTitle {
-
-    private final AndroidGame game;
-    private final int centerX;
-    private final int centerY;
-    private List<JGObject> ships;
+public class ShooterTitle extends GameState {
+    public List<JGObject> ships;
+    private int centerY;
+    private int centerX;
 
     public ShooterTitle(AndroidGame game) {
-        this.game = game;
-
+        super(game);
         centerY = this.game.viewHeight() / 2;
         centerX = this.game.viewWidth() / 2;
     }
 
     public void start() {
+        game.score = 0;
+        game.level = 0;
+        game.removeObjects("", 0);
         game.addStars(128);
         ships = new ArrayList<>();
         ships.add(new JGObject("select-steno-shot", true, centerX - 48, centerY - 8, 0, "player1"));
@@ -46,9 +48,14 @@ public class ShooterTitle {
 
     public void paintFrame() {
         game.drawString("-= RAUM BALLER =-", centerX, centerY - 48, 0, "blue");
-        game.drawString("TAP a ship to begin", centerX, centerY - 32, 0);
-        game.drawString("move by TAPPING where to go", centerX, centerY + 32, 0);
-        game.drawString("get stronger by destroying", centerX, centerY + 48, 0);
-        game.drawString("enemy ships", centerX, centerY + 64, 0);
+        game.drawString("-~~~~~~~~~~~~~~~-", centerX, centerY - 48, 0, "yellow");
+        game.drawString("TAP a ship to begin", centerX, centerY - 32, 0, "blue");
+        game.drawString("TAP~~~~~~~~~~~~~~~~", centerX, centerY - 32, 0, "yellow");
+        game.drawString("move by TAPPING where to go", centerX, centerY + 32, 0, "blue");
+        game.drawString("~~~~~~~~TAPPING~~~~~~~~~~~~", centerX, centerY + 32, 0, "yellow");
+        game.drawString("get STRONGER by DESTROYING", centerX, centerY + 48, 0, "blue");
+        game.drawString("~~~~STRONGER~~~~DESTROYING", centerX, centerY + 48, 0, "yellow");
+        game.drawString("enemy ships", centerX, centerY + 64, 0, "blue");
+        game.drawString("© KaeruCT 2012 - 2021", centerX, this.game.viewHeight() - 32, 0, "white");
     }
 }

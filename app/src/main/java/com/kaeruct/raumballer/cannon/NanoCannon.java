@@ -14,7 +14,7 @@ public class NanoCannon extends Cannon {
         if (canShoot(t)) {
             new BitBullet(x, y, colid, angle);
 
-            //game.playAudio("shoot");
+
         }
     }
 }

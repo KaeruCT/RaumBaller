@@ -5,6 +5,9 @@ import com.kaeruct.raumballer.cannon.SoloPlasmaCannon;
 import com.kaeruct.raumballer.cannon.TripleFireCannon;
 import com.kaeruct.raumballer.ship.EnemyShip;
 
+/**
+ * Big menacing red ship with lots of health
+ */
 public class CibumDestroyer extends EnemyShip {
 
     public CibumDestroyer(double x, double y, double vel, double angle, AndroidGame game) {

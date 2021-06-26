@@ -3,31 +3,36 @@ package com.kaeruct.raumballer;
 import com.kaeruct.raumballer.background.BGImage;
 import com.kaeruct.raumballer.background.BGStar;
 import com.kaeruct.raumballer.cannon.Cannon;
+import com.kaeruct.raumballer.gamestates.GameState;
+import com.kaeruct.raumballer.gamestates.ShooterEnterHighScore;
+import com.kaeruct.raumballer.gamestates.ShooterGameOver;
+import com.kaeruct.raumballer.gamestates.ShooterInGame;
+import com.kaeruct.raumballer.gamestates.ShooterLevelDone;
+import com.kaeruct.raumballer.gamestates.ShooterTitle;
 import com.kaeruct.raumballer.ship.PlayerShip;
-import com.kaeruct.raumballer.ship.player.NimakRunner;
-import com.kaeruct.raumballer.ship.player.SpinTurn;
-import com.kaeruct.raumballer.ship.player.StenoShot;
 import com.kaeruct.raumballer.wave.Wave;
 
 import java.util.ArrayList;
 
 import jgame.JGColor;
 import jgame.JGPoint;
+import jgame.JGTimer;
 import jgame.platform.JGEngine;
 
 public class AndroidGame extends JGEngine {
 
-    private PlayerShip p;
-    private ShooterTitle titleState;
-    private int gameOverStart = 0;
+    private PlayerShip player;
+    private GameState titleState;
+    private GameState gameOverState;
+    private GameState levelDoneState;
+    private GameState enterHighscoreState;
+    private GameState inGameState;
     public int selectedShip = 0;
-    public final byte PLAYER_ID = 1;
-    public final byte ENEMY_ID = 2;
+    public static final byte PLAYER_ID = 1;
+    public static final byte ENEMY_ID = 2;
     public int score;
     public int starCount;
-    public int starMax = 128;
-    public int starFreq = 80;
-    private boolean levelFinished = false;
+    private boolean levelDone = false;
     public final int WIDTH = 48 / 3;
     public final int HEIGHT = 68 / 3;
     public LevelReader levelReader;
@@ -36,11 +41,15 @@ public class AndroidGame extends JGEngine {
     public boolean isTapping;
     public boolean prevIsTapping;
     public boolean isTouchDown;
-    public int lastDown;
+    public int lastDown = -1;
     public int lastUp;
+    public int level = 0;
+    private final int lastLevel = 4;
+    public int starMax = 128;
+    public int starFreq = 80;
 
     public static void main(String[] args) {
-        new AndroidGame(new JGPoint(480, 720));
+        new AndroidGame(new JGPoint(0, 0));
     }
 
     /**
@@ -58,48 +67,81 @@ public class AndroidGame extends JGEngine {
     }
 
     public void initCanvas() {
-        // we set the background colour to same colour as the splash background
-        setCanvasSettings(WIDTH, HEIGHT, 16, 16, JGColor.black, new JGColor(0, 0, 0), null);
-
+        setCanvasSettings(WIDTH, HEIGHT, 16, 16, JGColor.cyan, JGColor.black, null);
     }
 
     public void initGame() {
-        this.setGameState("Title");
-
-        this.dbgShowFullStackTrace(true);
-        this.dbgShowMessagesInPf(false);
-
-        this.titleState = new ShooterTitle(this);
-        Cannon.game = this;
-
-        setFrameRate(60, 2);
-        setGameSpeed(1);
-
+        setAuthorMessage("");
         defineMedia("shooter.tbl");
-    }
-
-    public void loadLevel(String lvlFile) {
-        this.starCount = 0;
-
-        try {
-            this.levelReader = new LevelReader(this, getAssets().open(lvlFile));
-        } catch (Exception e) {
-            this.dbgPrint(e.toString());
-        }
+        setPFSize(WIDTH, HEIGHT);
 
         // init background
         new BGImage("pipe", 2, this);
         new BGImage("pipe", 6, this);
         new BGImage("bg1", 4, this);
 
-        removeObjects("bgstar", -1);
-        addStars(16);
+        setGameState("Title");
 
-        this.levelReader.init();
+        dbgShowFullStackTrace(true);
+        dbgShowMessagesInPf(false);
+
+        titleState = new ShooterTitle(this);
+        inGameState = new ShooterInGame(this);
+        gameOverState = new ShooterGameOver(this);
+        levelDoneState = new ShooterLevelDone(this);
+        enterHighscoreState = new ShooterEnterHighScore(this);
+        Cannon.game = this;
+
+        setFrameRate(60, 2);
+        setGameSpeed(1);
     }
 
-    public void levelFinished() {
-        levelFinished = true;
+    public void updateLevelState() {
+        if (levelReader != null && levelReader.isComplete()) {
+            levelDone = getObjects("", ENEMY_ID, false, null).size() == 0;
+        }
+        if (levelDone) {
+            levelDone = false;
+            new JGTimer(60, true,"InGame") {
+                public void alarm() {
+                    if (level == lastLevel) {
+                        setGameState("EnterHighscore");
+                    } else {
+                        setGameState("LevelDone");
+                    }
+                }
+            };
+        }
+    }
+
+    public void updateWaves() {
+        for (int i = 0; i < waves.size(); i++) {
+            waves.get(i).update();
+        }
+
+        for (int i = waves.size() - 1; i > 0; i--) {
+            if (waves.get(i).stopped) waves.remove(i);
+        }
+    }
+
+    public void updateStars() {
+        if (t % starFreq == 0 && starCount < starMax) {
+            addStars(16);
+        }
+    }
+
+    public void loadLevel(String lvlFile) {
+        waves = new ArrayList<>();
+        starCount = 0;
+        try {
+            levelReader = new LevelReader(this, getAssets().open(lvlFile));
+        } catch (Exception e) {
+            dbgPrint(e.toString());
+            return;
+        }
+
+        removeObjects("bgstar", -1);
+        addStars(16);
     }
 
     public void addStars(int n) {
@@ -115,7 +157,7 @@ public class AndroidGame extends JGEngine {
 
     public void addScore(double n) {
         score += n;
-        p.onScore(score);
+        player.onScore(score);
     }
 
     public void startTitle() {
@@ -131,104 +173,82 @@ public class AndroidGame extends JGEngine {
     }
 
     public void startInGame() {
-        setPFSize(WIDTH, HEIGHT);
-
-        this.waves = new ArrayList<>();
-        this.score = 0;
-        this.t = 0;
-
-        switch (this.selectedShip) {
-            default:
-            case 0:
-                p = new StenoShot(pfWidth() / 2 - 16, pfHeight() - 32, this);
-                break;
-            case 1:
-                p = new NimakRunner(pfWidth() / 2 - 16, pfHeight() - 32, this);
-                break;
-            case 2:
-                p = new SpinTurn(pfWidth() / 2 - 16, pfHeight() - 32, this);
-
-                break;
-        }
-
-        loadLevel("level1.lvl");
+        inGameState.start();
     }
 
     public void doFrameInGame() {
+        inGameState.doFrame();
+    }
+
+    public void paintFrameInGame() {
+        inGameState.paintFrame();
+    }
+
+    public void startLevel() {
+        level += 1;
+        loadLevel("level" + level + ".lvl");
+    }
+
+    public void startGeneral() {
+        t = 0;
+    }
+
+    public void doFrameGeneral() {
+        if (t < lastDown) lastDown = -1;
         boolean isDown = getMouseButton(1);
         isTouchDown = isDown;
         if (isDown) lastDown = t;
-        isTapping = (t - lastDown < 10); // expire taps after 10 frames
+        isTapping = lastDown > 0 && (t - lastDown < 10); // expire taps after 10 frames
 
         if (!isTapping && prevIsTapping) {
             lastUp = t;
         }
 
         prevIsTapping = isTapping;
-
-        checkCollision(PLAYER_ID, ENEMY_ID);
-        checkCollision(ENEMY_ID, PLAYER_ID);
-
-        setViewOffset(0, (int) p.y, true);
-
-        for (int i = 0; i < this.waves.size(); i++) {
-            waves.get(i).update();
-        }
-
-        for (int i = this.waves.size() - 1; i > 0; i--) {
-            if (waves.get(i).stopped) {
-                waves.remove(i);
-            }
-        }
-
-        moveObjects(null, 0);
-
-        if (t % starFreq == 0 && starCount < starMax) {
-            addStars(16);
-        }
-
         t++;
-
-        if (gameOverStart > 0 && (t - gameOverStart < 30) && isTapping) {
-            this.removeObjects("", 0);
-            gameOverStart = 0;
-            this.setGameState("Title");
-        }
-
-        if (this.waves.size() == 0) {
-            levelFinished = true;
-        }
-
-        if (levelFinished || p.isDead()) {
-            gameOverStart = t;
-        }
     }
 
-    public void paintFrameInGame() {
-        setColor(JGColor.white);
+    public void startLevelDone() {
+        levelDoneState.start();
+    }
 
-        drawString("Mode:" + p.getMode(), 4, viewHeight() - 10, -1);
-        drawString("Score:" + this.score, viewWidth() - 8, viewHeight() - 20, 1);
-        drawString("Health:" + ((int) p.getHealth()), viewWidth() - 10, viewHeight() - 8, 1);
+    public void doFrameLevelDone() {
+        levelDoneState.doFrame();
+    }
+    public void paintFrameLevelDone() {
+        levelDoneState.paintFrame();
+    }
 
-        if (levelFinished) {
-            int centerY = viewHeight() / 2;
-            int centerX = viewWidth() / 2;
+    public void startEnterHighscore() {
+        enterHighscoreState.start();
+    }
 
-            drawString("Congratulations! Level over!", centerX, centerY - 4, 0, "yellow");
-            drawString("TAP to restart!", centerX, centerY + 4, 0, "blue");
-            drawString("Try another ship!", centerX, centerY + 12, 0, "blue");
-        } else if (p.isDead()) {
-            int centerY = viewHeight() / 2;
-            int centerX = viewWidth() / 2;
+    public void doFrameEnterHighscore() {
+        enterHighscoreState.doFrame();
+    }
 
-            drawString("TAP to restart!", centerX - 4, centerY - 4, 0, "yellow");
-            drawString("Try another ship!", centerX + 4, centerY + 12, 0, "blue");
-        }
+    public void paintFrameEnterHighscore() {
+        enterHighscoreState.paintFrame();
+    }
+
+    public void startGameOver() {
+        gameOverState.start();
+    }
+
+    public void doFrameGameOver() {
+        gameOverState.doFrame();
+    }
+
+    public void paintFrameGameOver() {
+        gameOverState.paintFrame();
     }
 
     public PlayerShip getPlayer() {
-        return p;
+        return player;
+    }
+
+    public void setPlayer(PlayerShip p) {
+        this.player = p;
     }
 
     public boolean goingUp(double angle) {

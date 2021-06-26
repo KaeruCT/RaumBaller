@@ -5,6 +5,10 @@ import com.kaeruct.raumballer.cannon.FireCannon;
 import com.kaeruct.raumballer.ship.EnemyShip;
 import com.kaeruct.raumballer.ship.PlayerShip;
 
+/**
+ * Quick small red ship. Will speed up when getting close the the player.
+ * These are usually dispatched in groups
+ */
 public class FireStriker extends EnemyShip {
 
     public FireStriker(double x, double y, double vel, double angle, AndroidGame game) {

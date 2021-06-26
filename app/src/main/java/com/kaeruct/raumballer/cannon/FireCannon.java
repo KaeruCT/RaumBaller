@@ -13,7 +13,7 @@ public class FireCannon extends Cannon {
 
         if (canShoot(t)) {
             new FireBullet(x, y, colid, angle);
-            //game.playAudio("shoot");
+
         }
     }
 }

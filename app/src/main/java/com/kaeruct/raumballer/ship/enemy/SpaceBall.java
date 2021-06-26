@@ -5,6 +5,9 @@ import com.kaeruct.raumballer.cannon.BitWaveCannon;
 import com.kaeruct.raumballer.ship.EnemyShip;
 import com.kaeruct.raumballer.ship.PlayerShip;
 
+/**
+ * Small ship that locks on and orbits the player ship
+ */
 public class SpaceBall extends EnemyShip {
 
     private boolean lockedOn;

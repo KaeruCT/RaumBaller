@@ -14,7 +14,7 @@ public class DiscCannon extends Cannon {
         if (canShoot(t)) {
             new DiscBullet(x, y, colid, angle);
             new DiscBullet(x, y - 8, colid, angle);
-            //game.playAudio("shoot");
+
         }
     }
 }

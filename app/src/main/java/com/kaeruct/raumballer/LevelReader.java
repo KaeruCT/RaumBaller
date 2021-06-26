@@ -14,20 +14,21 @@ public class LevelReader {
 
     private final BufferedReader reader;
     private String[] waveClasses;
-    private int[] maxAmounts;
     private String currentLine;
     private final AndroidGame game;
     private int wavesDone;
+    private boolean complete;
 
     public LevelReader(AndroidGame game, InputStream inputStream) throws UnsupportedEncodingException {
-
         this.reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
         this.currentLine = null;
         this.wavesDone = 0;
         this.game = game;
+        this.complete = false;
+        init();
     }
 
-    public void init() {
+    private void init() {
         this.executeNextLine();
     }
 
@@ -49,7 +50,7 @@ public class LevelReader {
         wavesDone = 0;
         String[] params = currentLine.split("\\+");
         waveClasses = new String[params.length];
-        maxAmounts = new int[params.length];
+        int[] maxAmounts = new int[params.length];
 
         for (int i = 0; i < params.length; i++) {
             params[i] = params[i].trim();
@@ -64,7 +65,6 @@ public class LevelReader {
     }
 
     private void createWaves(String[] classNames, int[] maxAmounts) {
-
         for (int i = 0; i < classNames.length; i++) {
             try {
                 Class<Wave> wave = (Class<Wave>) Class.forName("com.kaeruct.raumballer.wave." + classNames[i]);
@@ -89,10 +89,14 @@ public class LevelReader {
 
     public void levelFinished() {
         try {
+            complete = true;
             this.reader.close();
         } catch (IOException e) {
             this.game.dbgPrint(e.toString());
         }
-        this.game.levelFinished();
+    }
+
+    public Boolean isComplete() {
+        return complete;
     }
 }

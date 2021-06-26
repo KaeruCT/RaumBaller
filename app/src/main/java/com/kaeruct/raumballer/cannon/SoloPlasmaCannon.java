@@ -14,7 +14,7 @@ public class SoloPlasmaCannon extends Cannon {
         if (canShoot(t)) {
 
             new PlasmaBullet(x, y, colid, angle);
-            //game.playAudio("shoot");
+
         }
     }
 }

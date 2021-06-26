@@ -1,0 +1,5 @@
+FireFormationWave 3
+FireFormationWave 5
+SparkEyeWave 5
+CibumWave 1 + FireFormationWave 5
+CibumWave 3 + FireFormationWave 2

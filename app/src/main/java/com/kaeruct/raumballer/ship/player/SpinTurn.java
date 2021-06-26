@@ -15,10 +15,13 @@ public class SpinTurn extends PlayerShip {
         super(x, y, "player3", 100, game);
         this.velocity = 2.4;
         this.acc = 0.2;
+        this.drag = 0.2;
         this.explosionColor = "blue";
         this.width = 16;
         this.cannonPrototypes[0] = new SparkCannon();
-        this.cannonPrototypes[1] = new FireCannon();
+        this.cannonPrototypes[1] = new CombinedCannon(new Cannon[]{
+                new NanoCannon(), new FireCannon()
+        });
         this.cannonPrototypes[2] = new CombinedCannon(new Cannon[]{
                 new SparkCannon(), new FireCannon()
         });

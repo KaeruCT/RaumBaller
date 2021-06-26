@@ -13,21 +13,11 @@ public abstract class Cannon {
         lastShoot = 0;
     }
 
-    public int getWaitTime() {
-        return waitTime;
-    }
-
-    public void setLastShoot(int t) {
-        lastShoot = t;
-    }
-
-    public int getLastShoot() {
-        return lastShoot;
-    }
-
     public boolean canShoot(int t) {
-        if (t - getLastShoot() >= getWaitTime()) {
-            setLastShoot(t);
+        if (t < lastShoot) lastShoot = 0; // t can be reset externally, so we need to take this into account
+
+        if (t - lastShoot >= waitTime) {
+            lastShoot = t;
             return true;
         }
         return false;

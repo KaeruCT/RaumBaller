@@ -44,7 +44,7 @@ public abstract class Ship extends JGObject {
         this.setHealth(maxHealth);
 
         // initialize cannons
-        this.cannons = new ArrayList<Cannon>();
+        this.cannons = new ArrayList<>();
     }
 
     public boolean flashing() {
@@ -113,7 +113,7 @@ public abstract class Ship extends JGObject {
         new Explosion(x + offset, y + offset, explosionColor);
 
         for (int i = 0; i < this.width; i += 8) {
-            new JGTimer(game.random(i, i + 20, 1), true) {
+            new JGTimer(game.random(i, i + 20, 1), true, "InGame") {
                 public void alarm() {
                     new Explosion(x + offset, y + offset + game.random(-r, r), explosionColor);
                     new Explosion(x + offset + game.random(-r, r), y, explosionColor);
@@ -144,6 +144,18 @@ public abstract class Ship extends JGObject {
             Ship s = ((Ship) obj);
             hurt(2 * s.getHealth() / this.getHealth());
             flash();
+
+            // temporary invincibility to avoid getting hurt too much when hitting a ship with another ship
+            if (this instanceof PlayerShip) {
+                this.sturdy = true;
+                PlayerShip ship = (PlayerShip) this;
+                new JGTimer(10, true, "InGame") {
+                    @Override
+                    public void alarm() {
+                        ship.sturdy = false;
+                    }
+                };
+            }
         }
     }
 
@@ -155,6 +167,10 @@ public abstract class Ship extends JGObject {
         this.health = health;
     }
 
+    public double getMaxHealth() {
+        return maxHealth;
+    }
+
     public boolean isDead() {
         return this.getHealth() == 0;
     }
@@ -163,6 +179,5 @@ public abstract class Ship extends JGObject {
         this.parent = parent;
     }
 
-    public void onScore(int score) {
-    }
+    public void onScore(int score) { }
 }

@@ -46,11 +46,4 @@ public class BGImage {
             }
         }
     }
-
-    public void setScroll(double scroll) {
-        this.scroll = scroll;
-        for (int i = 0; i < sprites.length; i++) {
-            sprites[i].scroll = scroll;
-        }
-    }
 }
