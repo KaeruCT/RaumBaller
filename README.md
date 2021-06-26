@@ -24,15 +24,15 @@ But even back then, the framework supported Android. So I was curious if my code
 shiny new phone. Turns out it worked! I decided to polish up the game a bit and release it for
 others to enjoy.
 
-# Screenshots
-
-<img alt="title" src="/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="300"/> <img alt="gameplay 1" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="300"/>
-<img alt="gameplay 2" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="300"/> <img alt="gameplay 3" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="300"/>
-<img alt="game over" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="300"/>
-
 # Music
 
 The level complete and game over jingles, and title screen music were composed by me.
 
 You can listen to a different version of the title screen song on this
 [SoundCloud mix](https://soundcloud.com/try_andy_beets/papaya-potential-mix-2021-deluxe-version).
+
+# Screenshots
+
+<img alt="title" src="/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="300"/> <img alt="gameplay 1" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="300"/>
+<img alt="gameplay 2" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="300"/> <img alt="gameplay 3" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="300"/>
+<img alt="game over" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="300"/>
