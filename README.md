@@ -26,6 +26,16 @@ others to enjoy.
 
 # Screenshots
 
+![title screen](./fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg)
+
+![gameplay 1](./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg)
+
+![gameplay 2](./fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg)
+
+![gameplay 3](./fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg)
+
+![game over](./fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg)
+
 # Music
 
 The level complete and game over jingles, and title screen music were composed by me.
