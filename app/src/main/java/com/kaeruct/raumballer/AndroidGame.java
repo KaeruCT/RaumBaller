@@ -38,8 +38,8 @@ public class AndroidGame extends JGEngine {
     public int lastDown = -1;
     public int lastUp;
     public int level = 0;
-    public int starMax = 128;
-    public int starFreq = 80;
+    public int starMax = 72;
+    public int starFreq = 120;
     private PlayerShip player;
     private GameState titleState;
     private GameState gameOverState;
@@ -141,7 +141,7 @@ public class AndroidGame extends JGEngine {
         }
 
         removeObjects("bgstar", -1);
-        addStars(16);
+        addStars(8);
     }
 
     public void addStars(int n) {

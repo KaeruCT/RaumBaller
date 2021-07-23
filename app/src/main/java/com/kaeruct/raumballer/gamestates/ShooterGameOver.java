@@ -32,7 +32,6 @@ public class ShooterGameOver extends GameState {
         game.doFrameGeneral();
         if (game.t > 120 && game.isTapping) {
             game.setGameState("Title");
-            game.setPlayer(null);
         }
     }
 

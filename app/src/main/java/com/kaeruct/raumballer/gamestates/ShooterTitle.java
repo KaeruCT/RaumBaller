@@ -20,11 +20,13 @@ public class ShooterTitle extends GameState {
     }
 
     public void start() {
+        game.startGeneral();
         game.playAudio("state", "start", true);
         game.score = 0;
         game.level = 0;
         game.removeObjects("", 0);
         game.addStars(128);
+        game.setPlayer(null);
         ships = new ArrayList<>();
         ships.add(new JGObject("select-steno-shot", true, centerX - 48, centerY - 8, 0, "player1"));
         ships.add(new JGObject("select-nimak-runner", true, centerX, centerY - 8, 0, "player2"));
