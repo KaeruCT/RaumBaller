@@ -33,7 +33,7 @@ You can listen to a different version of the title screen song on this
 
 # Screenshots
 
-<img alt="title" src="/fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="300"/> <img alt="gameplay 1" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="300"/>
+<img alt="title" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="300"/> <img alt="gameplay 1" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="300"/>
 <img alt="gameplay 2" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="300"/> <img alt="gameplay 3" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="300"/>
 <img alt="game over" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="300"/>
 
