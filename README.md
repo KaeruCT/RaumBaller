@@ -1,5 +1,7 @@
 # RaumBaller
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="75">](https://f-droid.org/packages/com.kaeruct.raumballer/)
+
 RaumBaller is an old-school scrolling shoot 'em up game.
 
 You control your spaceship by tapping on the screen.
