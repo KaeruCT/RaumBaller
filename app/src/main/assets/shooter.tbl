@@ -8,6 +8,7 @@ explode	sound/explosion.wav
 start	sound/start.wav
 success	sound/success_jingle.wav
 fail	sound/fail_jingle.wav
+health	sound/health.wav
 
 // define image to display as background
 starbg	img/starbg1.png					0	0	128	128	0	0
@@ -24,6 +25,7 @@ font_blue		img/fontblue.png		0	0	8	8	0	0
 expred_sheet	img/explosionred.png	0	0	16	16	0	0
 expgreen_sheet	img/explosiongreen.png	0	0	16	16	0	0
 expblue_sheet	img/explosionblue.png	0	0	16	16	0	0
+misc_sheet		img/misc.png			0	0	8	8	0	0
 
 expred_1	-	0	expred_sheet	0	-
 expred_2	-	0	expred_sheet	1	-
@@ -47,6 +49,13 @@ expblue_6	-	0	expblue_sheet	5	-
 explosion_red	expred_1;expred_2;expred_3;expred_4;expred_5;expred_6				0.5		false
 explosion_green	expgreen_1;expgreen_2;expgreen_3;expgreen_4;expgreen_5;expgreen_6	0.5		false
 explosion_blue	expblue_1;expblue_2;expblue_3;expblue_4;expblue_5;expblue_6			0.5		false
+
+health_1	-	0	misc_sheet	0	-
+health_2	-	0	misc_sheet	1	-
+health_3	-	0	misc_sheet	2	-
+health_4	-	0	misc_sheet	3	-
+
+health			health_1;health_2;health_3;health_4				0.5		false
 
 player_sheet		img/player.png	0	0	16	16	0	0
 player1_1		-	0	player_sheet	0	-

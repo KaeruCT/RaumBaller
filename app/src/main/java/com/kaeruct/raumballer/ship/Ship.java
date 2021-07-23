@@ -48,7 +48,6 @@ public abstract class Ship extends JGObject {
     }
 
     public boolean flashing() {
-
         if (this.flashStart == 0)
             return false;
         else
@@ -106,8 +105,7 @@ public abstract class Ship extends JGObject {
     }
 
     public void kill() {
-
-        final int offset = this.width / 2 - 8; // 16/2 is explosion width
+        final int offset = this.width / 2 - 8;
         final int r = this.width / 2;
 
         new Explosion(x + offset, y + offset, explosionColor);
@@ -137,7 +135,7 @@ public abstract class Ship extends JGObject {
 
             // increase score if it was an enemy ship
             if (this.isDead() && this instanceof EnemyShip) {
-                this.game.addScore(this.maxHealth * 100);
+                this.game.addScore(this);
             }
 
         } else if (obj instanceof Ship && !sturdy) {
@@ -165,6 +163,10 @@ public abstract class Ship extends JGObject {
 
     public void setHealth(double health) {
         this.health = health;
+    }
+
+    public void addHealth(double add) {
+        this.health = Math.min(health + add, maxHealth);
     }
 
     public double getMaxHealth() {

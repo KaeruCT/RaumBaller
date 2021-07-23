@@ -12,7 +12,7 @@ import com.kaeruct.raumballer.ship.PlayerShip;
 public class StenoShot extends PlayerShip {
 
     public StenoShot(int x, int y, AndroidGame game) {
-        super(x, y, "player1", 110, game);
+        super(x, y, "player1", 70, game);
         this.velocity = 3.0;
         this.acc = 0.2;
         this.drag = 0.1;

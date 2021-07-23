@@ -18,6 +18,7 @@ public class ShooterGameOver extends GameState {
 
     public void start() {
         game.startGeneral();
+        game.removeObjects("bullet", 0);
         game.playAudio("state", "fail", false);
 
         game.removeObjects("", 0);

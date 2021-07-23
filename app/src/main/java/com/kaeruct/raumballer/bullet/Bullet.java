@@ -34,7 +34,6 @@ public abstract class Bullet extends JGObject {
     }
 
     public void hit(JGObject obj) {
-
         if (obj instanceof Bullet) {
             new Explosion(x, y, "blue");
             this.remove();

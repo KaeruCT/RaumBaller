@@ -12,7 +12,7 @@ import com.kaeruct.raumballer.ship.PlayerShip;
 public class SpinTurn extends PlayerShip {
 
     public SpinTurn(int x, int y, AndroidGame game) {
-        super(x, y, "player3", 140, game);
+        super(x, y, "player3", 100, game);
         this.velocity = 2.4;
         this.acc = 0.2;
         this.drag = 0.2;

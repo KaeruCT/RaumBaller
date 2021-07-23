@@ -10,6 +10,7 @@ import com.kaeruct.raumballer.gamestates.ShooterInGame;
 import com.kaeruct.raumballer.gamestates.ShooterLevelDone;
 import com.kaeruct.raumballer.gamestates.ShooterTitle;
 import com.kaeruct.raumballer.ship.PlayerShip;
+import com.kaeruct.raumballer.ship.Ship;
 import com.kaeruct.raumballer.wave.Wave;
 
 import java.util.ArrayList;
@@ -20,11 +21,11 @@ import jgame.JGTimer;
 import jgame.platform.JGEngine;
 
 public class AndroidGame extends JGEngine {
-
     public static final byte PLAYER_ID = 1;
     public static final byte ENEMY_ID = 2;
-    public final int WIDTH = 48 / 3;
-    public final int HEIGHT = 68 / 3;
+    public static final byte HEALTH_ID = 3;
+    public final int WIDTH = 9 * 2;
+    public final int HEIGHT = 16 * 2;
     private final int lastLevel = 4;
     public int selectedShip = 0;
     public int score;
@@ -74,6 +75,8 @@ public class AndroidGame extends JGEngine {
         setAuthorMessage("");
         defineMedia("shooter.tbl");
         setPFSize(WIDTH, HEIGHT);
+        setSmoothing(false);
+        setScalingPreferences(HEIGHT/WIDTH, HEIGHT/WIDTH, 16, 16, 16, 16);
 
         // init background
         new BGImage("pipe", 2, this);
@@ -155,9 +158,13 @@ public class AndroidGame extends JGEngine {
         starCount += n;
     }
 
-    public void addScore(double n) {
-        score += n;
+    public void addScore(Ship ship) {
+        score += ship.getMaxHealth() * 100;
         player.onScore(score);
+
+        if (player.getHealth() != player.getMaxHealth() && random(0, 10, 1) == 5) {
+            new Health(ship.x, ship.y, this);
+        }
     }
 
     public void startTitle() {
