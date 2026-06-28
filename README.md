@@ -38,12 +38,16 @@ You can listen to a different version of the title screen song on this
 The browser port uses TeaVM and reuses the existing Java gameplay code.
 
 ```sh
-source scripts/dev-env.sh
-./gradlew :web:build
-python3 -m http.server 18765 --bind 127.0.0.1 --directory web/build/dist
+scripts/run-web.sh
 ```
 
 Then open <http://127.0.0.1:18765/index.html>.
+
+You can pass a custom port if needed:
+
+```sh
+scripts/run-web.sh 8080
+```
 
 The static output is written to `web/build/dist` and includes `index.html`, `raumballer.js`, and copied assets under `assets/`.
 
