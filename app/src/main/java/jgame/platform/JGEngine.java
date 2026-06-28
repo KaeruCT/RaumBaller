@@ -521,6 +521,10 @@ public abstract class JGEngine extends Application
         return el.getImageSize(imgname);
     }
 
+    public InputStream openAsset(String path) throws IOException {
+        return getAssets().open(path);
+    }
+
     public void defineMedia(String filename) {
         //	el.defineMedia(this,filename);
         //}
@@ -529,7 +533,7 @@ public abstract class JGEngine extends Application
         int lnr = 1;
         int nr_lines = 0;
         try {
-            InputStream instr = getAssets().open(filename);
+            InputStream instr = openAsset(filename);
             //InputStream instr = getClass().getResourceAsStream(filename);
             if (instr == null) exitEngine("Cannot open `" + filename + "'.");
             InputStreamReader in = new InputStreamReader(instr);
@@ -538,7 +542,7 @@ public abstract class JGEngine extends Application
             while (EngineLogic.readline(in) != null) nr_lines++;
             if (nr_lines == 0) exitEngine("Cannot open `" + filename + "'.");
             // now, read the file
-            in = new InputStreamReader(getAssets().open(filename));
+            in = new InputStreamReader(openAsset(filename));
             String line;
             String[] fields = new String[14];
             while ((line = EngineLogic.readline(in)) != null) {
@@ -2219,6 +2223,18 @@ public abstract class JGEngine extends Application
 
     public boolean and(int value, int mask) {
         return el.and(value, mask);
+    }
+
+    public int timerCount() {
+        return el.getTimerCount();
+    }
+
+    public String audioTrace() {
+        return "";
+    }
+
+    public void setRandomSeed(long seed) {
+        el.setRandomSeed(seed);
     }
 
     public double random(double min, double max) {

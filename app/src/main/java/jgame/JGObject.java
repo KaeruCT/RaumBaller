@@ -472,6 +472,10 @@ public class JGObject {
         return true;
     }
 
+    public static void resetObjectIdForTest() {
+        next_id = 0;
+    }
+
     /**
      * Called automatically by the engine to signal changes to pfWrap,
      * gameSpeed, pfWidth/Height, viewX/YOfs.  The current values of these

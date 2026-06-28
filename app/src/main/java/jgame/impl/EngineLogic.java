@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Random;
 import java.util.Vector;
 
 import jgame.JGColor;
@@ -214,7 +213,10 @@ public class EngineLogic {
 
 
     /* playfield dimensions from engine */
-    Random random;
+    private static final long RANDOM_MULTIPLIER = 0x5DEECE66DL;
+    private static final long RANDOM_ADDEND = 0xBL;
+    private static final long RANDOM_MASK = (1L << 48) - 1;
+    long randomSeed;
 
 
     /* background */
@@ -261,7 +263,7 @@ public class EngineLogic {
         this.imageutil = imageutil;
         this.make_bitmask = make_bitmask;
         this.prescale = prescale;
-        random = new Random();
+        setRandomSeed(System.currentTimeMillis());
         bg_images.addElement(null);
     }
 
@@ -2146,18 +2148,35 @@ public class EngineLogic {
         return (value & mask) != 0;
     }
 
+    public int getTimerCount() {
+        return timers.size();
+    }
+
+    public void setRandomSeed(long seed) {
+        randomSeed = (seed ^ RANDOM_MULTIPLIER) & RANDOM_MASK;
+    }
+
+    private int nextRandomBits(int bits) {
+        randomSeed = (randomSeed * RANDOM_MULTIPLIER + RANDOM_ADDEND) & RANDOM_MASK;
+        return (int) (randomSeed >>> (48 - bits));
+    }
+
+    private double nextRandomDouble() {
+        return (((long) nextRandomBits(26) << 27) + nextRandomBits(27)) / (double) (1L << 53);
+    }
+
     public double random(double min, double max) {
-        return min + random.nextDouble() * (max - min);
+        return min + nextRandomDouble() * (max - min);
     }
 
     public double random(double min, double max, double interval) {
         int steps = (int) Math.floor(0.00001 + (max - min) / interval);
-        return min + ((int) (random.nextDouble() * (steps + 0.99))) * interval;
+        return min + ((int) (nextRandomDouble() * (steps + 0.99))) * interval;
     }
 
     public int random(int min, int max, int interval) {
         int steps = (max - min) / interval;
-        return min + ((int) (random.nextDouble() * (steps + 0.99))) * interval;
+        return min + ((int) (nextRandomDouble() * (steps + 0.99))) * interval;
     }
 
     public JGPoint getTileIndex(double x, double y) {

@@ -1,13 +1,13 @@
 package com.kaeruct.raumballer;
 
 import com.kaeruct.raumballer.wave.Wave;
+import com.kaeruct.raumballer.wave.WaveFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
 
 public class LevelReader {
 
@@ -66,12 +66,8 @@ public class LevelReader {
     private void createWaves(String[] classNames, int[] maxAmounts) {
         for (int i = 0; i < classNames.length; i++) {
             try {
-                Class<Wave> wave = (Class<Wave>) Class.forName("com.kaeruct.raumballer.wave." + classNames[i]);
-                Constructor<Wave> c = wave.getConstructor(AndroidGame.class, LevelReader.class, int.class);
-
-                Wave w = c.newInstance(this.game, this, maxAmounts[i]);
+                Wave w = WaveFactory.create(classNames[i], this.game, this, maxAmounts[i]);
                 this.game.waves.add(w);
-
             } catch (Exception e) {
                 this.game.dbgPrint(e.toString());
             }

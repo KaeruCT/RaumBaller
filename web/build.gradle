@@ -1,0 +1,96 @@
+plugins {
+    id 'java'
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    teavmCli
+}
+
+def javaSourceSets = project.extensions.getByName('sourceSets')
+javaSourceSets.main.java.srcDirs = ['src/main/java']
+javaSourceSets.main.resources.srcDirs = ['src/main/resources']
+
+tasks.named('compileJava') {
+    source fileTree('../app/src/main/java') {
+        exclude 'jgame/platform/**'
+    }
+}
+
+dependencies {
+    implementation 'org.teavm:teavm-jso:0.9.2'
+    testImplementation 'junit:junit:4.13.2'
+    teavmCli 'org.teavm:teavm-cli:0.9.2'
+}
+
+task generateJavaScript(type: JavaExec) {
+    dependsOn classes
+    main = 'org.teavm.cli.TeaVMRunner'
+    classpath = configurations.teavmCli
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.file "$buildDir/generated/teavm/js/raumballer.js"
+    doFirst {
+        file("$buildDir/generated/teavm/js").mkdirs()
+        def runtimePaths = sourceSets.main.runtimeClasspath.files.collect { it.absolutePath }
+        args = [
+                '-t', 'js',
+                '-d', file("$buildDir/generated/teavm/js").absolutePath,
+                '-f', 'raumballer.js',
+                '-O', '1',
+                '-p'
+        ] + runtimePaths + ['--', 'com.kaeruct.raumballer.web.WebLauncher']
+    }
+}
+
+task copyWebAssets(type: Copy) {
+    from('../app/src/main/assets')
+    into "$buildDir/dist/assets"
+}
+
+task generateAssetsManifest {
+    inputs.dir '../app/src/main/assets'
+    outputs.file "$buildDir/generated/assets-manifest.js"
+    doLast {
+        def assetRoot = file('../app/src/main/assets')
+        def assets = fileTree(assetRoot).files.collect { file ->
+            assetRoot.toPath().relativize(file.toPath()).toString().replace('\\', '/')
+        }.sort()
+        def quoted = assets.collect { "  '${it.replace("'", "\\'")}'" }.join(',\n')
+        outputs.files.singleFile.parentFile.mkdirs()
+        outputs.files.singleFile.text = "window.RAUMBALLER_ASSETS = [\n${quoted}\n];\n"
+    }
+}
+
+task copyWebResources(type: Copy) {
+    dependsOn generateAssetsManifest
+    from('src/main/resources')
+    from(generateAssetsManifest.outputs.files)
+    into "$buildDir/dist"
+}
+
+task copyTeaVmJavaScript(type: Copy) {
+    dependsOn generateJavaScript
+    from("$buildDir/generated/teavm/js") {
+        include 'raumballer.js'
+        include 'raumballer.js.map'
+    }
+    into "$buildDir/dist"
+}
+
+task verifyDist {
+    dependsOn copyWebResources, copyWebAssets, copyTeaVmJavaScript
+    doLast {
+        ['index.html', 'raumballer.js', 'assets/shooter.tbl'].each { path ->
+            def output = file("$buildDir/dist/$path")
+            if (!output.exists()) throw new GradleException("Missing browser dist file: $path")
+        }
+    }
+}
+
+build.dependsOn verifyDist

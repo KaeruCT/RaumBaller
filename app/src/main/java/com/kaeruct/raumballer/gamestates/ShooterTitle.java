@@ -61,6 +61,6 @@ public class ShooterTitle extends GameState {
         game.drawString("get STRONGER by DESTROYING", centerX, centerY + 48, 0, "blue");
         game.drawString("~~~~STRONGER~~~~DESTROYING", centerX, centerY + 48, 0, "yellow");
         game.drawString("enemy ships", centerX, centerY + 64, 0, "blue");
-        game.drawString("© KaeruCT 2012 - 2021", centerX, this.game.viewHeight() - 32, 0, "white");
+        game.drawString("© KaeruCT 2012 - 2026", centerX, this.game.viewHeight() - 32, 0, "white");
     }
 }

@@ -24,6 +24,9 @@ public abstract class PlayerShip extends Ship {
 
         // shooting
         shoot();
+        if (!game.isAndroid() && game.getKey(game.KeyFire)) {
+            shoot();
+        }
         if (clock % 6 == 0) {
             game.playAudio("shooting", "laser", false);
         }
@@ -34,6 +37,18 @@ public abstract class PlayerShip extends Ship {
             double rad = game.atan2(eng.getMouseY() - getLastY(), eng.getMouseX() - getLastX());
             xacc = Math.cos(rad) * 0.1;
             yacc = Math.sin(rad) * 0.1;
+        }
+
+        if (!game.isAndroid()) {
+            if (game.getKey(game.KeyLeft) || game.getKey('A')) xacc -= 0.1;
+            if (game.getKey(game.KeyRight) || game.getKey('D')) xacc += 0.1;
+            if (game.getKey(game.KeyUp) || game.getKey('W')) yacc -= 0.1;
+            if (game.getKey(game.KeyDown) || game.getKey('S')) yacc += 0.1;
+
+            if (xacc > 0.1) xacc = 0.1;
+            if (xacc < -0.1) xacc = -0.1;
+            if (yacc > 0.1) yacc = 0.1;
+            if (yacc < -0.1) yacc = -0.1;
         }
 
         if (Math.abs(xspeed) < velocity) xspeed += xacc;

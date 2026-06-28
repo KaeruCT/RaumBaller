@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>RaumBaller</title>
+  <link rel="icon" href="data:,">
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      width: min(100vw, calc(100vh * 9 / 16));
+      height: min(100vh, calc(100vw * 16 / 9));
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      touch-action: none;
+    }
+    #status {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 1rem;
+      color: #9ff;
+      font: 12px sans-serif;
+      text-align: center;
+    }
+  </style>
+  <script src="assets-manifest.js"></script>
+  <script src="raumballer.js"></script>
+</head>
+<body>
+<canvas id="raumballer" width="288" height="512" tabindex="0" aria-label="RaumBaller game canvas"></canvas>
+<div id="status">Loading RaumBaller…</div>
+<script>
+(function () {
+  window.RaumBallerAssets = window.RaumBallerAssets || { images: {}, text: {}, audio: {} };
+
+  function loadImage(path) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () {
+        window.RaumBallerAssets.images[path] = img;
+        resolve();
+      };
+      img.onerror = reject;
+      img.src = 'assets/' + path;
+    });
+  }
+
+  function loadText(path) {
+    return fetch('assets/' + path).then(function (response) {
+      if (!response.ok) throw new Error('Failed to load ' + path);
+      return response.text();
+    }).then(function (text) {
+      window.RaumBallerAssets.text[path] = text;
+    });
+  }
+
+  function registerAudio(path) {
+    window.RaumBallerAssets.audio[path] = new Audio('assets/' + path);
+  }
+
+  function preload() {
+    return Promise.all((window.RAUMBALLER_ASSETS || []).map(function (asset) {
+      if (/\.png$/i.test(asset)) return loadImage(asset);
+      if (/\.(tbl|lvl)$/i.test(asset)) return loadText(asset);
+      if (/\.wav$/i.test(asset)) registerAudio(asset);
+      return null;
+    }));
+  }
+
+  function launch() {
+    var status = document.getElementById('status');
+    if (status) status.remove();
+    if (typeof main === 'function') {
+      main([]);
+    } else if (window.main && typeof window.main === 'function') {
+      window.main([]);
+    } else {
+      throw new Error('TeaVM main() export not found');
+    }
+  }
+
+  preload().then(launch).catch(function (error) {
+    document.getElementById('status').textContent = 'Failed to load RaumBaller: ' + error;
+    console.error(error);
+  });
+}());
+</script>
+</body>
+</html>

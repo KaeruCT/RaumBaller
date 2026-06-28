@@ -33,6 +33,20 @@ The level complete and game over jingles, and title screen music were composed b
 You can listen to a different version of the title screen song on this
 [SoundCloud mix](https://soundcloud.com/try_andy_beets/papaya-potential-mix-2021-deluxe-version).
 
+# Browser build
+
+The browser port uses TeaVM and reuses the existing Java gameplay code.
+
+```sh
+source scripts/dev-env.sh
+./gradlew :web:build
+python3 -m http.server 18765 --bind 127.0.0.1 --directory web/build/dist
+```
+
+Then open <http://127.0.0.1:18765/index.html>.
+
+The static output is written to `web/build/dist` and includes `index.html`, `raumballer.js`, and copied assets under `assets/`.
+
 # Screenshots
 
 <img alt="title" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="300"/> <img alt="gameplay 1" src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="300"/>

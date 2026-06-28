@@ -1,2 +1,3 @@
 rootProject.name = "RaumBaller"
 include ':app'
+include ':web'

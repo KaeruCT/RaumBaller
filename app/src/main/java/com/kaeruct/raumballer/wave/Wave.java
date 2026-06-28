@@ -3,8 +3,7 @@ package com.kaeruct.raumballer.wave;
 import com.kaeruct.raumballer.AndroidGame;
 import com.kaeruct.raumballer.LevelReader;
 import com.kaeruct.raumballer.ship.Ship;
-
-import java.lang.reflect.Constructor;
+import com.kaeruct.raumballer.ship.enemy.EnemyShipFactory;
 
 public abstract class Wave {
 
@@ -41,13 +40,7 @@ public abstract class Wave {
         Ship s = null;
 
         try {
-            // spawn ship
-            Class<Ship> ship = (Class<Ship>) Class.forName("com.kaeruct.raumballer.ship.enemy." + shipClass);
-
-            Constructor<Ship> c = ship.getConstructor(double.class, double.class,
-                    double.class, double.class, AndroidGame.class);
-
-            s = c.newInstance(x + game.viewXOfs(), y + game.viewYOfs(), vel, angle, this.game);
+            s = EnemyShipFactory.create(shipClass, x + game.viewXOfs(), y + game.viewYOfs(), vel, angle, this.game);
             this.setSpawned(this.getSpawned() + 1);
 
             if (parent != null) {

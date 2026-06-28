@@ -14,8 +14,10 @@ import com.kaeruct.raumballer.ship.Ship;
 import com.kaeruct.raumballer.wave.Wave;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 import jgame.JGColor;
+import jgame.JGObject;
 import jgame.JGPoint;
 import jgame.JGTimer;
 import jgame.platform.JGEngine;
@@ -137,7 +139,7 @@ public class AndroidGame extends JGEngine {
         waves = new ArrayList<>();
         starCount = 0;
         try {
-            levelReader = new LevelReader(this, getAssets().open(lvlFile));
+            levelReader = new LevelReader(this, openAsset(lvlFile));
         } catch (Exception e) {
             dbgPrint(e.toString());
             return;
@@ -257,6 +259,56 @@ public class AndroidGame extends JGEngine {
 
     public void setPlayer(PlayerShip p) {
         this.player = p;
+    }
+
+    public String traceState() {
+        StringBuilder trace = new StringBuilder();
+        trace.append("frame=").append(t);
+        trace.append(" state=").append(traceGameState());
+        trace.append(" level=").append(level);
+        trace.append(" score=").append(score);
+        trace.append(" selectedShip=").append(selectedShip);
+        trace.append(" timers=").append(timerCount());
+        trace.append(" audio=").append(audioTrace());
+        if (player != null) {
+            trace.append(" player=")
+                    .append(Math.round(player.x * 100.0) / 100.0)
+                    .append(',')
+                    .append(Math.round(player.y * 100.0) / 100.0)
+                    .append(',')
+                    .append(player.getHealth())
+                    .append(',')
+                    .append(player.getImageName());
+        } else {
+            trace.append(" player=null");
+        }
+        trace.append(" objects=");
+        Vector objects = getObjects("", 0, true, null);
+        for (int i = 0; i < objects.size(); i++) {
+            JGObject object = (JGObject) objects.elementAt(i);
+            if (i > 0) trace.append('|');
+            trace.append(object.getName())
+                    .append(':')
+                    .append(object.getClass().getName())
+                    .append(':')
+                    .append(Math.round(object.x * 100.0) / 100.0)
+                    .append(',')
+                    .append(Math.round(object.y * 100.0) / 100.0)
+                    .append(':')
+                    .append(object.colid)
+                    .append(':')
+                    .append(object.getImageName());
+        }
+        return trace.toString();
+    }
+
+    private String traceGameState() {
+        if (inGameState("Title")) return "Title";
+        if (inGameState("InGame")) return "InGame";
+        if (inGameState("LevelDone")) return "LevelDone";
+        if (inGameState("GameOver")) return "GameOver";
+        if (inGameState("EnterHighscore")) return "EnterHighscore";
+        return "Other";
     }
 
     public boolean goingUp(double angle) {
