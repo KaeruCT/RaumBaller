@@ -19,7 +19,15 @@ out/
 
 # Gradle files
 .gradle/
+.gradle-user-home/
 build/
+
+# Local sandbox/dev environment
+.android-sdk/
+.android-sdk-home/
+.android-user-home/
+.home/
+.tmp/
 
 # Local configuration file (sdk path, etc)
 local.properties
